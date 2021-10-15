@@ -9,11 +9,12 @@ import java.io.IOException;
 
 public class RunApplication extends Application {
     private MapView mapView;
+    private MapController mapController;
 
     @Override
     public void start(Stage stage) throws IOException {
         mapView = new MapView(19, 30);
-
+        mapController = new MapController(mapView);
         Scene scene = new Scene(mapView);
 
         stage.setScene(scene);

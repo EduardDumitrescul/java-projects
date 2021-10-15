@@ -3,25 +3,28 @@ package com.example.hexagondijkstra;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 public class MapView extends BorderPane {
     private int rows, columns;
     private double aspectRatio, radius, length;
 
     private Hexagon[][] hexagon;
-    private Group hexagonGroup;
 
     private Pane map;
+    private Group group;
 
     public MapView(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
 
         aspectRatio = (3 * rows + 2) / (2 * Math.sqrt(3) * columns);
-        System.out.println(aspectRatio);
+
+        group = new Group();
 
         map = new Pane();
         map.maxHeightProperty().bind(Bindings.min(
@@ -31,21 +34,17 @@ public class MapView extends BorderPane {
                 heightProperty().subtract(100).divide(aspectRatio),
                 widthProperty().subtract(100)));
 
-
-
-        //map.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
-
-
-
         hexagon = new Hexagon[rows][columns];
-        hexagonGroup = new Group();
 
         for(int i = 0; i < rows; i ++) {
             for(int j = 0; j < columns; j ++) {
                 hexagon[i][j] = new Hexagon(i, j);
-                map.getChildren().add(hexagon[i][j]);
+                //map.getChildren().add(hexagon[i][j]);
+                group.getChildren().add(hexagon[i][j]);
             }
         }
+
+        map.getChildren().add(group);
 
         map.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -60,14 +59,13 @@ public class MapView extends BorderPane {
                 addBottomRightPoints();
                 addTopRightPoints();
 
-                System.out.println(hexagon[0][0].getPoints());
+                //System.out.println(hexagon[0][0].getPoints());
             }
         });
 
-
-
-
         setCenter(map);
+        map.setBackground(new Background(new BackgroundFill(Color.BLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+        setFocused(true);
 
         //System.out.println(map.getChildren());
 
@@ -88,7 +86,6 @@ public class MapView extends BorderPane {
             }
         }
     }
-
     private void addTopLeftPoints() {
         for(int i = 0; i < rows; i ++) {
             for(int j = 0; j < columns; j ++) {
@@ -149,8 +146,6 @@ public class MapView extends BorderPane {
             }
         }
     }
-
-
     private void addTopRightPoints() {
         for(int i = 0; i < rows; i ++) {
             for(int j = 0; j < columns; j ++) {
@@ -165,5 +160,17 @@ public class MapView extends BorderPane {
                 hexagon[i][j].setTopRight(new Point2D(x, y));
             }
         }
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
+    public Hexagon[][] getHexagon() {
+        return hexagon;
     }
 }
