@@ -7,14 +7,20 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application {
+public class RunApplication extends Application {
+    private MapView mapView;
+
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+        mapView = new MapView(19, 30);
+
+        Scene scene = new Scene(mapView);
+
         stage.setScene(scene);
+        stage.setHeight(720);
+        stage.setWidth(1280);
         stage.show();
+
     }
 
     public static void main(String[] args) {
