@@ -6,6 +6,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.effect.Blend;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -13,6 +15,7 @@ import javafx.scene.shape.Polygon;
 
 import java.awt.*;
 import java.awt.image.PixelInterleavedSampleModel;
+import java.net.URL;
 
 public class Hexagon extends Region {
     private Point2D top, topLeft, bottomLeft, bottom, bottomRight, topRight;
@@ -20,6 +23,7 @@ public class Hexagon extends Region {
     private double radius, height;
 
     private Polygon polygon;
+    private ImageView bullet, source, target;
 
     public final static int EMPTY = 0, BLOCKED = 1, SOURCE = 2, DESTINATION = 3, PATH = 4, REACHABLE = 5;
     public final static int SELECTED = 100, DESELECTED = 101;
@@ -42,6 +46,10 @@ public class Hexagon extends Region {
         polygon.setStrokeWidth(2);
 
         //setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderStroke.THIN)));
+
+        URL sourceURL = getClass().getResource("/img/source.png");
+        source = new WrappedImageView();
+        source.setImage(new Image(String.valueOf(sourceURL)));
 
         getChildren().add(polygon);
 
@@ -95,8 +103,13 @@ public class Hexagon extends Region {
     }
 
     public void setState(int state) {
+        switch(this.state) {
+            case SOURCE: getChildren().remove(source);
+        }
         this.state = state;
         polygon.setFill(color[state]);
+
+        getChildren().add(source);
     }
 
     public int getSelected() {
