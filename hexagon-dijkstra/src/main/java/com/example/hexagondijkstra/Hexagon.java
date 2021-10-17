@@ -17,7 +17,7 @@ import java.awt.*;
 import java.awt.image.PixelInterleavedSampleModel;
 import java.net.URL;
 
-public class Hexagon extends Region {
+public class Hexagon extends Pane {
     private Point2D top, topLeft, bottomLeft, bottom, bottomRight, topRight;
     private Point2D center;
     private double radius, height;
@@ -47,24 +47,60 @@ public class Hexagon extends Region {
 
         //setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderStroke.THIN)));
 
-        URL sourceURL = getClass().getResource("/img/source.png");
-        source = new WrappedImageView();
-        source.setImage(new Image(String.valueOf(sourceURL)));
-
         getChildren().add(polygon);
 
         initPoints();
+        initImages();
+    }
+
+    private void initImages() {
+        URL sourceURL = getClass().getResource("/img/source.png");
+        source = new ImageView();
+        source.setImage(new Image(String.valueOf(sourceURL)));
+
+        URL targetURL = getClass().getResource("/img/target.png");
+        target = new ImageView();
+        target.setImage(new Image(String.valueOf(targetURL)));
+
+        URL bulletURL = getClass().getResource("/img/bullet.png");
+        bullet = new ImageView();
+        bullet.setImage(new Image(String.valueOf(bulletURL)));
     }
 
     public void setCenter(Point2D center) {
         this.center = center;
         drawHex();
+        recomputeImages();
     }
 
     public void setRadius(double radius) {
         this.radius = radius;
         height = radius * Math.sqrt(3) / 2;
         drawHex();
+        recomputeImages();
+    }
+
+    private void recomputeImages() {
+        source.setX(center.getX() - radius / 2);
+        source.setY(center.getY() - radius / 2);
+        target.setX(center.getX() - radius / 2);
+        target.setY(center.getY() - radius / 2);
+        bullet.setX(center.getX() - radius / 2);
+        bullet.setY(center.getY() - radius / 2);
+
+
+        source.setFitHeight(radius);
+        source.setFitWidth(radius);
+        target.setFitHeight(radius);
+        target.setFitWidth(radius);
+        bullet.setFitHeight(radius);
+        bullet.setFitWidth(radius);
+
+
+        source.setSmooth(true);
+        target.setSmooth(true);
+        bullet.setSmooth(true);
+
     }
 
     private void drawHex() {
@@ -104,12 +140,16 @@ public class Hexagon extends Region {
 
     public void setState(int state) {
         switch(this.state) {
-            case SOURCE: getChildren().remove(source);
+            case SOURCE: getChildren().remove(source); break;
+            case DESTINATION: getChildren().remove(target); break;
         }
         this.state = state;
         polygon.setFill(color[state]);
 
-        getChildren().add(source);
+        switch (state) {
+            case SOURCE: getChildren().add(source); break;
+            case DESTINATION: getChildren().add(target); break;
+        }
     }
 
     public int getSelected() {
