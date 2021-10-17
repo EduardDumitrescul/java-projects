@@ -10,154 +10,91 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 public class MapView extends BorderPane {
-    private int rows, columns;
+    private int rows, columns, xOffset;
+    private double width, height;
     private double aspectRatio, radius, length;
 
     private Hexagon[][] hexagon;
 
     private Pane map;
-    private Group group;
+
+    /*
+        Pane coordinates: x - horizontal starting from left
+                          y - vertical starting from top
+        hexagon[x][y] coordinates: x - horizontal starting from left
+                                   y - vertical starting from top
+    */
 
     public MapView(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
 
-        aspectRatio = (3 * rows + 2) / (2 * Math.sqrt(3) * columns);
-
-        group = new Group();
+        xOffset = (columns - 1) / 2;
+        aspectRatio = (2 * Math.sqrt(3)  / 3) * (columns - 1) / (rows - 1);
 
         map = new Pane();
         map.maxHeightProperty().bind(Bindings.min(
-                widthProperty().subtract(100).multiply(aspectRatio),
+                widthProperty().subtract(100).divide(aspectRatio),
                 heightProperty().subtract(100)));
         map.maxWidthProperty().bind(Bindings.min(
-                heightProperty().subtract(100).divide(aspectRatio),
+                heightProperty().subtract(100).multiply(aspectRatio),
                 widthProperty().subtract(100)));
 
-        hexagon = new Hexagon[rows][columns];
+        hexagon = new Hexagon[rows + columns][columns];
 
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                hexagon[i][j] = new Hexagon(i, j);
-                //map.getChildren().add(hexagon[i][j]);
-                group.getChildren().add(hexagon[i][j]);
+        for(int y = 0 ; y < rows; y ++) {
+            for(int x = firstColumn(y); x < lastColumn(y); x ++) {
+                hexagon[x + xOffset][y] = new Hexagon();
+                map.getChildren().add(hexagon[x + xOffset][y]);
             }
         }
-
-        map.getChildren().add(group);
 
         map.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                radius =  2 * map.getHeight() / (3 * rows + 2);
-                length = map.getWidth() / columns;
+                width = map.getWidth();
+                height = map.getHeight();
+                radius =  2 * height / (3 * (rows - 1));
+                length = Math.sqrt(3) / 2 * radius;
 
-                addTopPoints();
-                addTopLeftPoints();
-                addBottomLeftPoints();
-                addBottomPoints();
-                addBottomRightPoints();
-                addTopRightPoints();
-
-                //System.out.println(hexagon[0][0].getPoints());
+                drawHexagons();
             }
         });
 
+        //map.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY ,Insets.EMPTY)));
         setCenter(map);
-        map.setBackground(new Background(new BackgroundFill(Color.BLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-        setFocused(true);
-
-        //System.out.println(map.getChildren());
-
     }
 
-    private void addTopPoints() {
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                if(i % 2 == 1 && j == columns - 1)
-                    break;
-
-                double x, y;
-                if(i % 2 == 0) x = (2.0 * j + 1) / 2 * length;
-                else x = (j + 1) * length;
-                y = (3.0 * i) / 2 * radius;
-
-                hexagon[i][j].setTop(new Point2D(x, y));
-            }
-        }
+    public int firstColumn(int row) {
+        return -row / 2;
     }
-    private void addTopLeftPoints() {
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                if(i % 2 == 1 && j == columns - 1)
-                    break;
 
-                double x, y;
-                if(i % 2 == 0) x = j * length;
-                else x = (2.0 * j + 1) / 2 * length;
-                y = (3.0 * i + 1) / 2 * radius;
-
-                hexagon[i][j].setTopLeft(new Point2D(x, y));
-            }
-        }
+    public int lastColumn(int row) {
+        return columns - (row + 1) / 2;
     }
-    private void addBottomLeftPoints() {
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                if(i % 2 == 1 && j == columns - 1)
-                    break;
 
-                double x, y;
-                if(i % 2 == 0) x = j * length;
-                else x = (2.0 * j + 1) / 2 * length;
-                y = (3.0 * i + 3) / 2 * radius;
-
-                hexagon[i][j].setBottomLeft(new Point2D(x, y));
-            }
-        }
+    public Point2D hexToPixel(int x, int y) {
+        double px = (2 * length * x + length * y);
+        double py = radius * (1.5 * y);
+        return new Point2D(px, py);
     }
-    private void addBottomPoints() {
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                if(i % 2 == 1 && j == columns - 1)
-                    break;
 
-                double x, y;
-                if(i % 2 == 0) x = (2.0 * j + 1) / 2 * length;
-                else x = (j + 1) * length;
-                y = (3.0 * i + 4) / 2 * radius;
+    public CubeCoordinates pixelToHex(double x, double y) {
+        double px = (Math.sqrt(3) / 3 * x - 1.0 / 3 * y) / radius;
+        double py = (2.0 / 3 * y) / radius;
+        double pz = 0 - px - py;
 
-                hexagon[i][j].setBottom(new Point2D(x, y));
-            }
-        }
+        CubeCoordinates cubeCoordinates = new CubeCoordinates(px, py, pz);
+
+        return CubeCoordinates.roundCube(cubeCoordinates);
     }
-    private void addBottomRightPoints() {
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                if(i % 2 == 1 && j == columns - 1)
-                    break;
 
-                double x, y;
-                if(i % 2 == 0) x = (j + 1) * length;
-                else x = (2.0 * j + 3) / 2 * length;
-                y = (3.0 * i + 3) / 2 * radius;
-
-                hexagon[i][j].setBottomRight(new Point2D(x, y));
-            }
-        }
-    }
-    private void addTopRightPoints() {
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                if(i % 2 == 1 && j == columns - 1)
-                    break;
-
-                double x, y;
-                if(i % 2 == 0) x = (j + 1) * length;
-                else x = (2.0 * j + 3) / 2 * length;
-                y = (3.0 * i + 1) / 2 * radius;
-
-                hexagon[i][j].setTopRight(new Point2D(x, y));
+    private void drawHexagons() {
+        for(int y = 0 ; y < rows; y ++) {
+            for(int x = firstColumn(y); x < lastColumn(y); x ++) {
+                Point2D center = hexToPixel(x, y);
+                hexagon[x + xOffset][y].setCenter(center);
+                hexagon[x + xOffset][y].setRadius(radius);
             }
         }
     }
@@ -172,5 +109,13 @@ public class MapView extends BorderPane {
 
     public Hexagon[][] getHexagon() {
         return hexagon;
+    }
+
+    public Pane getMap() {
+        return map;
+    }
+
+    public int getxOffset() {
+        return xOffset;
     }
 }

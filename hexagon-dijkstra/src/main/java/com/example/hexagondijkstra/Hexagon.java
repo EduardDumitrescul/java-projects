@@ -7,15 +7,18 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.effect.Blend;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
+import java.awt.*;
+import java.awt.image.PixelInterleavedSampleModel;
+
 public class Hexagon extends Region {
     private Point2D top, topLeft, bottomLeft, bottom, bottomRight, topRight;
+    private Point2D center;
+    private double radius, height;
+
     private Polygon polygon;
 
     public final static int EMPTY = 0, BLOCKED = 1, SOURCE = 2, DESTINATION = 3, PATH = 4, REACHABLE = 5;
@@ -32,17 +35,39 @@ public class Hexagon extends Region {
             Color.web("e0a6cd")  // REACHABLE
     };
 
-    public Hexagon(int x, int y) {
+    public Hexagon() {
         polygon = new Polygon();
-        //setStroke(Color.LIGHTBLUE);
-        //setStrokeWidth(1);
         polygon.setFill(color[EMPTY]);
+        polygon.setStroke(Color.LIGHTBLUE);
+        polygon.setStrokeWidth(2);
 
-        setPickOnBounds(false);
+        //setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderStroke.THIN)));
 
         getChildren().add(polygon);
 
         initPoints();
+    }
+
+    public void setCenter(Point2D center) {
+        this.center = center;
+        drawHex();
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+        height = radius * Math.sqrt(3) / 2;
+        drawHex();
+    }
+
+    private void drawHex() {
+        polygon.getPoints().clear();
+
+        top         = new Point2D(   center.getX(),          center.getY() - radius);
+        topLeft     = new Point2D(center.getX() - height, center.getY() - radius / 2);
+        bottomLeft  = new Point2D(center.getX() - height, center.getY() + radius / 2);
+        bottom      = new Point2D(   center.getX(),          center.getY() + radius);
+        bottomRight = new Point2D(center.getX() + height, center.getY() + radius / 2);
+        topRight    = new Point2D(center.getX() + height, center.getY() - radius / 2);
         addAllPoints();
     }
 
@@ -82,39 +107,7 @@ public class Hexagon extends Region {
         this.selected = selected;
     }
 
-    public void setBottom(Point2D bottom) {
-        polygon.getPoints().clear();
-        this.bottom = bottom;
-        addAllPoints();
-    }
-
-    public void setBottomLeft(Point2D bottomLeft) {
-        polygon.getPoints().clear();
-        this.bottomLeft = bottomLeft;
-        addAllPoints();
-    }
-
-    public void setBottomRight(Point2D bottomRight) {
-        polygon.getPoints().clear();
-        this.bottomRight = bottomRight;
-        addAllPoints();
-    }
-
-    public void setTop(Point2D top) {
-        polygon.getPoints().clear();
-        this.top = top;
-        addAllPoints();
-    }
-
-    public void setTopLeft(Point2D topLeft) {
-        polygon.getPoints().clear();
-        this.topLeft = topLeft;
-        addAllPoints();
-    }
-
-    public void setTopRight(Point2D topRight) {
-        polygon.getPoints().clear();
-        this.topRight = topRight;
-        addAllPoints();
+    public Point2D getCenter() {
+        return center;
     }
 }

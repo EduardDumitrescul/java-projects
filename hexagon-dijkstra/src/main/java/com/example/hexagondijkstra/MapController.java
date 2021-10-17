@@ -1,143 +1,160 @@
 package com.example.hexagondijkstra;
 
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.input.*;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Path;
+
+import javax.sound.sampled.Clip;
 
 public class MapController {
     private MapView mapView;
+    private Pane map;
     private Hexagon[][] hexagons;
-    private int rows, columns;
+    private int rows, columns, xOffset;
     private boolean isClear = true, isReset = true;
 
 
     public MapController(MapView mapView) {
-
         this.mapView = mapView;
+        map = mapView.getMap();
         rows = mapView.getRows();
         columns = mapView.getColumns();
         hexagons = mapView.getHexagon();
+        xOffset = mapView.getxOffset();
 
         createSource();
         createDestination();
 
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                initGestureHandlers(hexagons[i][j]);
-            }
-        }
+        initGestureHandlers();
     }
 
     private void createSource() {
-        int i = rows / 2;
-        int j = columns / 4;
-        hexagons[i][j].setSelected(Hexagon.SOURCE);
+        int i = 0;
+        int j = rows / 2;
+        hexagons[i + xOffset][j].setState(Hexagon.SOURCE);
     }
 
     private void createDestination() {
-        int i = rows / 2;
-        int j = 3 * columns / 4;
-        hexagons[i][j].setSelected(Hexagon.DESTINATION);
+        int i = columns - rows / 2 - 1;
+        int j = rows / 2;
+        hexagons[i + xOffset][j].setState(Hexagon.DESTINATION);
     }
 
-    private void clearMap() {
-        if(isClear == true)
-            return;
-        isClear = true;
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j ++) {
-                if(hexagons[i][j].getState() == Hexagon.REACHABLE || hexagons[i][j].getState() == Hexagon.PATH)
-                    hexagons[i][j].setSelected(Hexagon.EMPTY);
-            }
-        }
+    private boolean hexagonExists(int i, int j) {
+        if(!(0 <= j && j < rows))
+            return false;
+        if(!(mapView.firstColumn(j) <= i && i < mapView.lastColumn(j)))
+            return false;
+        return true;
     }
 
-    private void resetMap() {
-        if(isReset == true)
-            return;
-        isReset = true;
-        for(int i = 0; i < rows; i ++) {
-            for(int j = 0; j < columns; j++) {
-                hexagons[i][j].setSelected(Hexagon.EMPTY);
-            }
-        }
+    private void initGestureHandlers() {
+        final int[] sourceState = {-1};
+        final Hexagon[] hexDrag = new Hexagon[1];
+        hexDrag[0] = null;
 
-        createSource();
-        createDestination();
-    }
-
-    private void initGestureHandlers(Hexagon hexagon) {
-
-        hexagon.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        map.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                clearMap();
-                if(hexagon.getState() == Hexagon.EMPTY)
-                    hexagon.setState(Hexagon.BLOCKED);
-                else if(hexagon.getState() == Hexagon.BLOCKED)
-                    hexagon.setState(Hexagon.EMPTY);
-            }
-        });
+                System.out.println("CLICK");
+                if(sourceState[0] != -1)
+                    return;
+                double x = mouseEvent.getX();
+                double y = mouseEvent.getY();
 
+                CubeCoordinates cubeCoordinates = mapView.pixelToHex(x, y);
+                int i = (int)cubeCoordinates.getX();
+                int j = (int)cubeCoordinates.getY();
+                System.out.println(i + " "  + j);
 
-
-        hexagon.setOnDragDetected(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                Dragboard db;
-                ClipboardContent content = new ClipboardContent();
-                System.out.println("START");
-
-                db = hexagon.startDragAndDrop(TransferMode.ANY);
-                content.putString(Integer.toString(hexagon.getState()));
-                db.setContent(content);
+                if(hexagonExists(i, j)) {
+                    i += xOffset;
+                    if(hexagons[i][j].getState() == Hexagon.BLOCKED)
+                        hexagons[i][j].setState(Hexagon.EMPTY);
+                    else if(hexagons[i][j].getState() == Hexagon.EMPTY)
+                        hexagons[i][j].setState(Hexagon.BLOCKED);
+                }
 
                 mouseEvent.consume();
             }
         });
 
-
-
-        hexagon.setOnDragOver(new EventHandler<DragEvent>() {
+        map.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(DragEvent dragEvent) {
-                dragEvent.acceptTransferModes(TransferMode.ANY);
+            public void handle(MouseEvent mouseEvent) {
+                double x = mouseEvent.getX();
+                double y = mouseEvent.getY();
+                CubeCoordinates cubeCoordinates = mapView.pixelToHex(x, y);
+                int i = (int)cubeCoordinates.getX();
+                int j = (int)cubeCoordinates.getY();
 
-                if(hexagon.getState() == Hexagon.EMPTY) {
-                    hexagon.setState(Hexagon.BLOCKED);
-                }
-                else if(hexagon.getState() == Hexagon.BLOCKED) {
-                    hexagon.setState(Hexagon.EMPTY);
-                }
+                if(!hexagonExists(i, j))
+                    return;
 
-                dragEvent.consume();
+                i += xOffset;
+                Hexagon hex = hexagons[i][j];
+
+                if(sourceState[0] == -1)
+                    sourceState[0] = hexagons[i][j].getState();
+
+                if(sourceState[0] == Hexagon.SOURCE) {
+                    if(hexDrag[0] == null)
+                        hexDrag[0] = hex;
+                    if(hexDrag[0] != hex && (hex.getState() == Hexagon.EMPTY || hex.getState() == Hexagon.BLOCKED)) {
+                        hexDrag[0].setState(Hexagon.EMPTY);
+                        hex.setState(Hexagon.SOURCE);
+                        hexDrag[0] = hex;
+                    }
+                }
+                else if(sourceState[0] == Hexagon.DESTINATION) {
+                    if(hexDrag[0] == null)
+                        hexDrag[0] = hex;
+                    if(hexDrag[0] != hex && (hex.getState() == Hexagon.EMPTY || hex.getState() == Hexagon.BLOCKED)) {
+                        hexDrag[0].setState(Hexagon.EMPTY);
+                        hex.setState(Hexagon.DESTINATION);
+                        hexDrag[0] = hex;
+                    }
+                }
+                else if(sourceState[0] == Hexagon.EMPTY) {
+                    if(hex.getState() != Hexagon.SOURCE && hex.getState() != Hexagon.DESTINATION)
+                        hex.setState(Hexagon.BLOCKED);
+                }
+                else if(sourceState[0] == Hexagon.BLOCKED) {
+                    if(hex.getState() != Hexagon.SOURCE && hex.getState() != Hexagon.DESTINATION)
+                        hex.setState(Hexagon.EMPTY);
+                }
             }
         });
 
-
-
-
-
-        hexagon.setOnDragDropped(new EventHandler<DragEvent>() {
+        map.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(DragEvent dragEvent) {
-                //if(!dragEvent.getDragboard().hasString()) return;
+            public void handle(MouseEvent mouseEvent) {
+                double x = mouseEvent.getX();
+                double y = mouseEvent.getY();
+                CubeCoordinates cubeCoordinates = mapView.pixelToHex(x, y);
+                int i = (int)cubeCoordinates.getX();
+                int j = (int)cubeCoordinates.getY();
 
-                System.out.println("STOP");
-                dragEvent.acceptTransferModes(TransferMode.ANY);
+                if(!hexagonExists(i, j)) {
+                    sourceState[0] = -1;
+                    hexDrag[0] = null;
+                    mouseEvent.consume();
+                    return;
+                }
 
-                int startState = Integer.parseInt(dragEvent.getDragboard().getString());
+                i += xOffset;
+                Hexagon hex = hexagons[i][j];
 
-                dragEvent.setDropCompleted(true);
-                dragEvent.consume();
-            }
-        });
+                if(sourceState[0] == Hexagon.EMPTY && hex.getState() == Hexagon.BLOCKED)
+                    hex.setState(Hexagon.EMPTY);
+                else if(sourceState[0] == Hexagon.BLOCKED && hex.getState() == Hexagon.EMPTY)
+                    hex.setState(Hexagon.BLOCKED);
 
-
-
-        hexagon.setOnDragDone(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
+                sourceState[0] = -1;
+                hexDrag[0] = null;
+                mouseEvent.consume();
             }
         });
     }

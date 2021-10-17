@@ -13,6 +13,8 @@ public class RunApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        System.setProperty("sun.java2d.opengl", "true");
+
         mapView = new MapView(19, 30);
         mapController = new MapController(mapView);
         Scene scene = new Scene(mapView);
