@@ -25,11 +25,15 @@ public class MapController {
         createDestination();
 
         initGestureHandlers();
+
+        dijkstra = new DijkstraAlgorithm(rows, columns, hexagons);
     }
 
     public void startDijkstra() {
+        dijkstra.stop();
+        clearMap();
+
         isClear = false;
-        dijkstra = new DijkstraAlgorithm(rows, columns, hexagons);
         dijkstra.start();
     }
 

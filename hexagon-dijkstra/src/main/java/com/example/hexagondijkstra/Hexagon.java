@@ -1,11 +1,15 @@
 package com.example.hexagondijkstra;
 
+import javafx.animation.FillTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.util.Duration;
 
 import java.net.URL;
 
@@ -30,6 +34,8 @@ public class Hexagon extends Pane {
             Color.web("ba7fa6"), // PATH
             Color.web("e0a6cd")  // REACHABLE
     };
+
+    private boolean animationRunning = false;
 
     public Hexagon() {
         polygon = new Polygon();
@@ -129,12 +135,26 @@ public class Hexagon extends Pane {
     }
 
     public void setState(int state) {
+        if(state == this.state)
+            return;
+
         switch(this.state) {
             case SOURCE: getChildren().remove(source); break;
             case DESTINATION: getChildren().remove(target); break;
         }
+
+        FillTransition transition = new FillTransition(Duration.millis(240), polygon, color[this.state], color[state]);
+        animationRunning = true;
+        transition.playFromStart();
+
+        transition.setOnFinished(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                animationRunning = false;
+            }
+        });
+
         this.state = state;
-        polygon.setFill(color[state]);
 
         switch (state) {
             case SOURCE: getChildren().add(source); break;

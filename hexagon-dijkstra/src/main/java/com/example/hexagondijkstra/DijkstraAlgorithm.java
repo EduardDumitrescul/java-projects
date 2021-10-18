@@ -13,11 +13,11 @@ public class DijkstraAlgorithm {
     private final int columns;
     private final int xOffset;
     private final Hexagon[][] hexagons;
-    private final int[][] dist;
+    private int[][] dist;
 
     private Timeline timeline;
 
-    private final PathComputeAlgorithm pathComputeAlgorithm;
+    private PathComputeAlgorithm pathComputeAlgorithm;
 
     public DijkstraAlgorithm(int rows, int columns, Hexagon[][] hexagons) {
         this.rows = rows;
@@ -29,17 +29,22 @@ public class DijkstraAlgorithm {
         dist = new int[rows + columns][columns];
         pathComputeAlgorithm = new PathComputeAlgorithm(rows, columns, hexagons, dist);
 
-
-        findSource();
         initTimeline();
     }
 
     public void start() {
+        deque.clear();
+        dist = new int[rows + columns][columns];
+        pathComputeAlgorithm = new PathComputeAlgorithm(rows, columns, hexagons, dist);
+
+        findSource();
         timeline.playFromStart();
     }
 
     private void initTimeline() {
-        timeline = new Timeline(new KeyFrame(Duration.millis(10), actionEvent -> {
+        timeline = new Timeline(new KeyFrame(Duration.millis(40), actionEvent -> {
+                if(deque.isEmpty())
+                    return;
                 CubeCoordinates current = deque.getFirst();
                 deque.removeFirst();
 
