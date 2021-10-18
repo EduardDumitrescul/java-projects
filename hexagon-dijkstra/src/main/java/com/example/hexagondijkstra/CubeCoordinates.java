@@ -7,6 +7,14 @@ package com.example.hexagondijkstra;
 
 public class CubeCoordinates {
     private double x, y, z;
+    public static CubeCoordinates[] neighbours = new CubeCoordinates[]{
+            new CubeCoordinates(1, -1, 0),
+            new CubeCoordinates(1, 0, -1),
+            new CubeCoordinates(0, 1, -1),
+            new CubeCoordinates(-1, 1, 0),
+            new CubeCoordinates(-1, 0, 1),
+            new CubeCoordinates(0, -1, 1)
+    };
 
     public CubeCoordinates() {
 
@@ -40,6 +48,13 @@ public class CubeCoordinates {
         else
             rz = 0 - rx - ry;
         return new CubeCoordinates(rx, ry, rz);
+    }
+
+    public static CubeCoordinates nextCoordinate(CubeCoordinates cubeCoordinates, int index) {
+        if(index < 0) return cubeCoordinates;
+        if(index > 5) return cubeCoordinates;
+        return cubeCoordinates.add(neighbours[index]);
+
     }
 
     public CubeCoordinates add(CubeCoordinates cube) {

@@ -1,20 +1,12 @@
 package com.example.hexagondijkstra;
 
-import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.geometry.Point3D;
-import javafx.scene.effect.Blend;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
-import java.awt.*;
-import java.awt.image.PixelInterleavedSampleModel;
 import java.net.URL;
 
 public class Hexagon extends Pane {
@@ -96,11 +88,9 @@ public class Hexagon extends Pane {
         bullet.setFitHeight(radius);
         bullet.setFitWidth(radius);
 
-
         source.setSmooth(true);
         target.setSmooth(true);
         bullet.setSmooth(true);
-
     }
 
     private void drawHex() {
