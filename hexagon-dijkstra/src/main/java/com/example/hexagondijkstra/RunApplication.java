@@ -13,6 +13,7 @@ public class RunApplication extends Application {
     private MapController mapController;
 
     private ControlBarView controlBarView;
+    private ControlBarController controlBarController;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -23,6 +24,7 @@ public class RunApplication extends Application {
         mapView = new MapView(19, 30);
         mapController = new MapController(mapView);
         controlBarView = new ControlBarView();
+        controlBarController = new ControlBarController(controlBarView, mapController);
 
         borderPane.setTop(controlBarView);
         borderPane.setCenter(mapView);

@@ -1,21 +1,23 @@
 package com.example.hexagondijkstra;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.util.Duration;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 
 public class DijkstraAlgorithm {
-    private ArrayDeque<CubeCoordinates> deque;
-    private int rows, columns, xOffset;
-    private Hexagon[][] hexagons;
-    private int[][] dist;
+    private final ArrayDeque<CubeCoordinates> deque;
+    private final int rows;
+    private final int columns;
+    private final int xOffset;
+    private final Hexagon[][] hexagons;
+    private final int[][] dist;
 
     private Timeline timeline;
+
+    private final PathComputeAlgorithm pathComputeAlgorithm;
 
     public DijkstraAlgorithm(int rows, int columns, Hexagon[][] hexagons) {
         this.rows = rows;
@@ -23,8 +25,10 @@ public class DijkstraAlgorithm {
         this.hexagons = hexagons;
         xOffset = (columns - 1) / 2;
 
-        deque = new ArrayDeque<CubeCoordinates>();
+        deque = new ArrayDeque<>();
         dist = new int[rows + columns][columns];
+        pathComputeAlgorithm = new PathComputeAlgorithm(rows, columns, hexagons, dist);
+
 
         findSource();
         initTimeline();
@@ -35,37 +39,40 @@ public class DijkstraAlgorithm {
     }
 
     private void initTimeline() {
-        timeline = new Timeline(new KeyFrame(Duration.millis(100), new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                while(!deque.isEmpty()) {
-                    CubeCoordinates current = deque.getFirst();
-                    deque.removeFirst();
+        timeline = new Timeline(new KeyFrame(Duration.millis(10), actionEvent -> {
+                CubeCoordinates current = deque.getFirst();
+                deque.removeFirst();
 
-                    for(int k = 0; k < 6; k++) {
-                        CubeCoordinates next = CubeCoordinates.nextCoordinate(current, k);
-                        int x = (int)next.getX();
-                        int y = (int)next.getY();
-                        if(!hexagonExists(x, y))
-                            continue;
-                        x += xOffset;
-                        if(dist[x][y] == 0 && hexagons[x][y].getState() != Hexagon.SOURCE) {
-                            deque.addLast(next);
-                            dist[x][y] = dist[(int)current.getX() + xOffset][(int)current.getY()] + 1;
+                if (hexagons[(int) current.getX() + xOffset][(int) current.getY()].getState() == Hexagon.EMPTY) {
+                    hexagons[(int) current.getX() + xOffset][(int) current.getY()].setState(Hexagon.REACHABLE);
+                } else if (hexagons[(int) current.getX() + xOffset][(int) current.getY()].getState() == Hexagon.DESTINATION) {
+                    timeline.stop();
+                    System.out.println("FINISH");
+                    pathComputeAlgorithm.start();
+                    return;
+                }
 
-                            if(hexagons[x][y].getState() == Hexagon.DESTINATION) {
-                                timeline.stop();
-                            }
-
-                            hexagons[x][y].setState(Hexagon.REACHABLE);
-
-                            return;
-                        }
+                for (int k = 0; k < 6; k++) {
+                    CubeCoordinates next = CubeCoordinates.nextCoordinate(current, k);
+                    int x = (int) next.getX();
+                    int y = (int) next.getY();
+                    if (!hexagonExists(x, y))
+                        continue;
+                    x += xOffset;
+                    if (dist[x][y] == 0 && (hexagons[x][y].getState() == Hexagon.EMPTY || hexagons[x][y].getState() == Hexagon.DESTINATION)) {
+                        deque.addLast(next);
+                        dist[x][y] = dist[(int) current.getX() + xOffset][(int) current.getY()] + 1;
                     }
                 }
-            }
         }));
+        timeline.setCycleCount(Animation.INDEFINITE);
     }
+
+    public void stop() {
+        timeline.stop();
+        pathComputeAlgorithm.stop();
+    }
+
 
     private void findSource() {
         for(int y = 0; y < rows; y ++) {
@@ -88,8 +95,6 @@ public class DijkstraAlgorithm {
     private boolean hexagonExists(int i, int j) {
         if(!(0 <= j && j < rows))
             return false;
-        if(!(firstColumn(j) <= i && i < lastColumn(j)))
-            return false;
-        return true;
+        return firstColumn(j) <= i && i < lastColumn(j);
     }
 }

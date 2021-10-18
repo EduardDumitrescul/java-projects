@@ -2,11 +2,11 @@ package com.example.hexagondijkstra;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 
 public class ControlBarView extends HBox {
-    private Button startButton, resetButton;
+    private final Button startButton;
+    private final Button resetButton;
 
     public ControlBarView() {
         setPrefHeight(80);
@@ -18,5 +18,13 @@ public class ControlBarView extends HBox {
 
         getChildren().add(startButton);
         getChildren().add(resetButton);
+    }
+
+    public Button getResetButton() {
+        return resetButton;
+    }
+
+    public Button getStartButton() {
+        return startButton;
     }
 }

@@ -1,17 +1,14 @@
 package com.example.hexagondijkstra;
 
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Path;
-
-import javax.sound.sampled.Clip;
 
 public class MapController {
     private MapView mapView;
     private Pane map;
     private Hexagon[][] hexagons;
+    private DijkstraAlgorithm dijkstra;
     private int rows, columns, xOffset;
     private boolean isClear = true, isReset = true;
 
@@ -28,6 +25,37 @@ public class MapController {
         createDestination();
 
         initGestureHandlers();
+    }
+
+    public void startDijkstra() {
+        isClear = false;
+        dijkstra = new DijkstraAlgorithm(rows, columns, hexagons);
+        dijkstra.start();
+    }
+
+    public void clearMap() {
+        if(isClear)
+            return;
+        isClear = true;
+        dijkstra.stop();
+        for(int y = 0; y < rows; y ++) {
+            for(int x = mapView.firstColumn(y); x < mapView.lastColumn(y); x ++){
+                if(hexagons[x + xOffset][y].getState() == Hexagon.REACHABLE ||
+                        hexagons[x + xOffset][y].getState() == Hexagon.PATH)
+                    hexagons[x + xOffset][y].setState(Hexagon.EMPTY);
+            }
+        }
+    }
+
+    public void resetMap() {
+        dijkstra.stop();
+        for(int y = 0; y < rows; y ++) {
+            for(int x = mapView.firstColumn(y); x < mapView.lastColumn(y); x ++){
+               hexagons[x + xOffset][y].setState(Hexagon.EMPTY);
+            }
+        }
+        createSource();
+        createDestination();
     }
 
     private void createSource() {
@@ -58,7 +86,7 @@ public class MapController {
         map.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                System.out.println("CLICK");
+                clearMap();
                 if(sourceState[0] != -1)
                     return;
                 double x = mouseEvent.getX();
@@ -84,6 +112,7 @@ public class MapController {
         map.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
+                clearMap();
                 double x = mouseEvent.getX();
                 double y = mouseEvent.getY();
                 CubeCoordinates cubeCoordinates = mapView.pixelToHex(x, y);
