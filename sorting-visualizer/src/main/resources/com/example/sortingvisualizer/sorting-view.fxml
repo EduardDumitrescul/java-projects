@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="400.0" prefWidth="600.0"
+            fx:controller="com.example.sortingvisualizer.SortingController">
+    <top>
+        <HBox xmlns="http://javafx.com/javafx"
+              xmlns:fx="http://javafx.com/fxml"
+              prefHeight="80"
+              spacing="40"
+              alignment="CENTER">
+            <Button text = "Sort" onAction="#start"/>
+            <Button text = "Reset" onAction="#reset"/>
+        </HBox>
+    </top>
+
+    <center>
+        <HBox xmlns="http://javafx.com/javafx"
+              xmlns:fx="http://javafx.com/fxml"
+
+              style="-fx-background-color:blue"
+              alignment="TOP_CENTER"
+              fx:id="mainPane">
+            <BorderPane.margin>
+                <Insets bottom="64" left="100" top="64" right="100"/>
+            </BorderPane.margin>
+        </HBox>
+    </center>
+
+
+</BorderPane>

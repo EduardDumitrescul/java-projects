@@ -21,7 +21,7 @@ public class RunApplication extends Application {
 
         BorderPane borderPane = new BorderPane();
 
-        mapView = new MapView(19, 30);
+        mapView = new MapView(10, 20);
         mapController = new MapController(mapView);
         controlBarView = new ControlBarView();
         controlBarController = new ControlBarController(controlBarView, mapController);
