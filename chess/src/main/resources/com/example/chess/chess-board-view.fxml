@@ -10,8 +10,8 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:id="rootPane"
             fx:controller="com.example.chess.ChessBoardController">
-        <GridPane fx:id="boardPane" >
+        <AnchorPane fx:id="boardContainer">
+        </AnchorPane>
 
-        </GridPane>
 
 </StackPane>
