@@ -20,6 +20,10 @@ public class Board extends GridPane {
         setStartingPosition();
     }
 
+    public BoardTile getBoardTile(int index) {
+        return board[index];
+    }
+
     public void setStartingPosition() {
         board[0].setPiece(Piece.WHITE_ROCK);
         board[1].setPiece(Piece.WHITE_KNIGHT);

@@ -1,5 +1,6 @@
 package com.example.chess;
 
+import com.example.chess.engine.Bitboard;
 import com.example.chess.pieces.Piece;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
+import java.util.BitSet;
 import java.util.ResourceBundle;
 
 public class ChessBoardController implements Initializable {
@@ -20,9 +22,15 @@ public class ChessBoardController implements Initializable {
     @FXML
     private Board board;
 
+    private Bitboard bitboard;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initBoard();
+
+        bitboard = Bitboard.boardToBitboard(board);
+
+        board = bitboard.toBoard();
     }
 
 
