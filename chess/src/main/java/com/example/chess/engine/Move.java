@@ -1,13 +1,17 @@
 package com.example.chess.engine;
 
+import com.example.chess.pieces.Piece;
+
 import java.nio.LongBuffer;
 import java.util.BitSet;
 
 public class Move {
     private BitSet start = new BitSet(6);
     private BitSet dest = new BitSet(6);
+    private int piece;
 
     public void setStart(int i, int j) {
+        start.clear();
         if(!(0 <= i && i <= 7 && 0 <= j && j <= 7)) {
             System.out.println("Out of bounds move!");
             System.exit(1);
@@ -23,6 +27,7 @@ public class Move {
     }
 
     public void setDest(int i, int j) {
+        dest.clear();
         if(!(0 <= i && i <= 7 && 0 <= j && j <= 7)) {
             System.out.println("Out of bounds move!");
             System.exit(1);
@@ -36,7 +41,11 @@ public class Move {
         if((j & 4) == 4) dest.set(3);
     }
 
-    public int getStartTile() {
+    public void setPiece(int piece) {
+        this.piece = piece;
+    }
+
+    public int getStartIndex() {
         int p = 0;
         for(int i = 0; i < 6; i++) {
             p = p << 1;
@@ -46,7 +55,7 @@ public class Move {
         return p;
     }
 
-    public int getDestTile() {
+    public int getDestIndex() {
         int p = 0;
         for(int i = 0; i < 6; i++) {
             p = p << 1;
@@ -54,5 +63,9 @@ public class Move {
                 p ^= 1;
         }
         return p;
+    }
+
+    public int getPiece() {
+        return piece;
     }
 }

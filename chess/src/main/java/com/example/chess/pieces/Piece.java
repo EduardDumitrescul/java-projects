@@ -35,7 +35,7 @@ public class Piece {
     };
 
     public static final Image[] image = new Image[]{
-            new Image(String.valueOf(Piece.class.getResource("/img/trnsparent.png"))),
+            new Image(String.valueOf(Piece.class.getResource("/img/transparent.png"))),
             new Image(String.valueOf(Piece.class.getResource("/img/white-king.png"))),
             new Image(String.valueOf(Piece.class.getResource("/img/black-king.png"))),
             new Image(String.valueOf(Piece.class.getResource("/img/white-queen.png"))),
