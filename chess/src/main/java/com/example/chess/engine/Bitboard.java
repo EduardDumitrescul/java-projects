@@ -49,6 +49,17 @@ public class Bitboard {
         return bitboard;
     }
 
+    public void makeMove(Board board, Move move) {
+        if(move.getPiece() == Piece.EMPTY) return;
+
+        int start = move.getStartIndex();
+        int dest = move.getDestIndex();
+        bitboard[move.getPiece()].set(start, start, false);
+        bitboard[move.getEndPiece()].set(dest, dest, false);
+        bitboard[move.getPiece()].set(dest, dest, true);
+        board.getBoardTile(dest).setPiece(move.getPiece());
+
+    }
 
     public Board toBoard() {
         Board board = new Board();

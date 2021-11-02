@@ -37,6 +37,8 @@ public class ChessBoardController implements Initializable {
     }
 
     private void initBoard() {
+        bitboard = Bitboard.boardToBitboard(board);
+
         RowConstraints rowConstraints = new RowConstraints();
         rowConstraints.setPercentHeight(12.5);
         ColumnConstraints columnConstraints = new ColumnConstraints();
@@ -107,6 +109,7 @@ public class ChessBoardController implements Initializable {
         }
 
         move.setDest(i, j);
+        bitboard.makeMove(board, move);
 
         boardOverlay.getChildren().remove(pieceImage);
     }

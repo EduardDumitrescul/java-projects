@@ -8,7 +8,7 @@ import java.util.BitSet;
 public class Move {
     private BitSet start = new BitSet(6);
     private BitSet dest = new BitSet(6);
-    private int piece;
+    private int piece, endPiece;
 
     public void setStart(int i, int j) {
         start.clear();
@@ -45,6 +45,10 @@ public class Move {
         this.piece = piece;
     }
 
+    public void setEndPiece(int endPiece) {
+        this.endPiece = endPiece;
+    }
+
     public int getStartIndex() {
         int p = 0;
         for(int i = 0; i < 6; i++) {
@@ -67,5 +71,9 @@ public class Move {
 
     public int getPiece() {
         return piece;
+    }
+
+    public int getEndPiece() {
+        return endPiece;
     }
 }
