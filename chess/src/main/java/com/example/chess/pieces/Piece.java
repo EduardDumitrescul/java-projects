@@ -9,8 +9,8 @@ public class Piece {
     public static final int BLACK_KING = 2;
     public static final int WHITE_QUEEN = 3;
     public static final int BLACK_QUEEN = 4;
-    public static final int WHITE_ROCK = 5;
-    public static final int BLACK_ROCK = 6;
+    public static final int WHITE_ROOK = 5;
+    public static final int BLACK_ROOK = 6;
     public static final int WHITE_BISHOP = 7;
     public static final int BLACK_BISHOP = 8;
     public static final int WHITE_KNIGHT = 9;
@@ -24,8 +24,8 @@ public class Piece {
             new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/black-king.png")))),
             new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/white-queen.png")))),
             new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/black-queen.png")))),
-            new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/white-rock.png")))),
-            new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/black-rock.png")))),
+            new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/white-rook.png")))),
+            new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/black-rook.png")))),
             new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/white-bishop.png")))),
             new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/black-bishop.png")))),
             new WrappedImageView(new Image(String.valueOf(Piece.class.getResource("/img/white-knight.png")))),
@@ -40,8 +40,8 @@ public class Piece {
             new Image(String.valueOf(Piece.class.getResource("/img/black-king.png"))),
             new Image(String.valueOf(Piece.class.getResource("/img/white-queen.png"))),
             new Image(String.valueOf(Piece.class.getResource("/img/black-queen.png"))),
-            new Image(String.valueOf(Piece.class.getResource("/img/white-rock.png"))),
-            new Image(String.valueOf(Piece.class.getResource("/img/black-rock.png"))),
+            new Image(String.valueOf(Piece.class.getResource("/img/white-rook.png"))),
+            new Image(String.valueOf(Piece.class.getResource("/img/black-rook.png"))),
             new Image(String.valueOf(Piece.class.getResource("/img/white-bishop.png"))),
             new Image(String.valueOf(Piece.class.getResource("/img/black-bishop.png"))),
             new Image(String.valueOf(Piece.class.getResource("/img/white-knight.png"))),

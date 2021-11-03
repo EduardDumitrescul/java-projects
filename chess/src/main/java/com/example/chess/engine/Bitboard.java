@@ -1,7 +1,6 @@
 package com.example.chess.engine;
 
 import com.example.chess.Board;
-import com.example.chess.BoardTile;
 import com.example.chess.pieces.Piece;
 
 import java.util.BitSet;
@@ -34,13 +33,13 @@ public class Bitboard {
             switch(board.getBoardTile(i).getPiece()) {
                 case Piece.WHITE_KING: bitboard.setPiece(Piece.WHITE_KING, i); break;
                 case Piece.WHITE_QUEEN: bitboard.setPiece(Piece.WHITE_QUEEN, i); break;
-                case Piece.WHITE_ROCK: bitboard.setPiece(Piece.WHITE_ROCK, i); break;
+                case Piece.WHITE_ROOK: bitboard.setPiece(Piece.WHITE_ROOK, i); break;
                 case Piece.WHITE_BISHOP: bitboard.setPiece(Piece.WHITE_BISHOP, i); break;
                 case Piece.WHITE_KNIGHT: bitboard.setPiece(Piece.WHITE_KNIGHT, i); break;
                 case Piece.WHITE_PAWN: bitboard.setPiece(Piece.WHITE_PAWN, i); break;
                 case Piece.BLACK_KING: bitboard.setPiece(Piece.BLACK_KING, i); break;
                 case Piece.BLACK_QUEEN: bitboard.setPiece(Piece.BLACK_QUEEN, i); break;
-                case Piece.BLACK_ROCK: bitboard.setPiece(Piece.BLACK_ROCK, i); break;
+                case Piece.BLACK_ROOK: bitboard.setPiece(Piece.BLACK_ROOK, i); break;
                 case Piece.BLACK_BISHOP: bitboard.setPiece(Piece.BLACK_BISHOP, i); break;
                 case Piece.BLACK_KNIGHT: bitboard.setPiece(Piece.BLACK_KNIGHT, i); break;
                 case Piece.BLACK_PAWN: bitboard.setPiece(Piece.BLACK_PAWN, i); break;
