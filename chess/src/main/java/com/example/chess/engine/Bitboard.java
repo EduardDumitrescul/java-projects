@@ -12,9 +12,11 @@ public class Bitboard {
 
     private boolean valuesInitialized = false;
     private static long universal = -1;
-    private static long empty;
-    private static long[] fileSet;
-    private static long[] rankSet;
+    private static long empty = 0;
+    private static long[] fileSet = new long[8];   // a..h   - vertical
+    private static long[] rankSet = new long[8];   // 0..7   - horizontal
+    private static long[] diagonalSet = new long[16];  // a1..h8
+    private static long[] antiDiagonalSet = new long[16]; //a8..h1
     private static long[] bit = new long[64];
     private static int[] bitIndex = new int[67];
 
@@ -31,15 +33,38 @@ public class Bitboard {
         if (valuesInitialized) return;
         valuesInitialized = true;
 
+        // Compute bit values
         bit[0] |= 1;
-        bitIndex[1] = 0;
-        for(int i = 1; i < 64; i ++) {
+        for(int i = 1; i < 64; i ++)
             bit[i] = bit[i-1] << 1;
 
+        // Compute bit indexes
+        for(int i = 0; i < 64; i ++) {
             int mod = (int)(bit[i] % 67);
             if(mod < 0) mod += 67;
             bitIndex[mod] = i;
         }
+
+        //compute rankSet
+        rankSet[0] ^= (bit[8] - 1);
+        for(int i = 1; i < 8; i ++)
+            rankSet[i] = rankSet[i-1] << 8;
+
+        //compute fileSet
+        for(int i = 0; i < 8; i++)
+            fileSet[0] |= bit[8 * i];
+        for(int i = 1; i < 8; i++)
+            fileSet[i] = fileSet[i-1] << 1;
+
+        //compute diagonals
+        for(int rank = 0; rank < 8; rank ++) {
+            for(int file = 0; file < 8; file ++) {
+                diagonalSet[toDiagonalIndex(rank, file)] |= bit[toSquareIndex(rank, file)];
+                antiDiagonalSet[toAntiDiagonalIndex(rank, file)] |= bit[toSquareIndex(rank, file)];
+            }
+        }
+
+        //testPrecomputedValues();
     }
 
     //Try not to use because it loses info about castling, en-passant
@@ -135,5 +160,57 @@ public class Bitboard {
         int mod  = (int)(p2 % 67);
         if(mod < 0) mod += 67;
         return bitIndex[mod];
+    }
+
+    private void testPrecomputedValues() {
+        System.out.println("universal");
+        printBitTable(universal);
+
+        System.out.println("empty");
+        printBitTable(empty);
+
+        for(int i = 0; i < 64; i ++){
+            System.out.println("bit " + i);
+            printBitTable(bit[i]);
+        }
+
+        for(int i = 0; i < 8; i ++) {
+            System.out.println("rank " + i);
+            printBitTable(rankSet[i]);
+        }
+
+        for(int i = 0; i < 8; i ++) {
+            System.out.println("file " + i);
+            printBitTable(fileSet[i]);
+        }
+
+        for(int i = 0; i < 16; i ++) {
+            System.out.println("diagonal " + i);
+            printBitTable(diagonalSet[i]);
+        }
+
+        for(int i = 0; i < 16; i ++) {
+            System.out.println("anti diagonal " + i);
+            printBitTable(antiDiagonalSet[i]);
+        }
+    }
+
+    private static void printBitTable(long value) {
+        long[][] x = new long[8][8];
+        for(int rank = 0; rank < 8; rank ++) {
+            for(int file = 0 ; file < 8; file ++) {
+                if((value & bit[8*rank+file]) != 0)
+                    x[7 - rank][file] = 1;
+            }
+        }
+
+        for(int i = 0; i < 8; i ++) {
+            for(int j = 0; j < 8; j++) {
+                System.out.print(x[i][j]);
+            }
+            System.out.print("\n");
+        }
+        System.out.println("*******************");
+
     }
 }
