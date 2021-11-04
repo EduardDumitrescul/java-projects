@@ -17,8 +17,6 @@ public class Board extends GridPane {
                 board[squareIndex].getChildren().add(new Label(Integer.toString(squareIndex)));
             }
         }
-
-        setStartingPosition();
     }
 
     public static int toSquareIndex(int rankIndex, int fileIndex){

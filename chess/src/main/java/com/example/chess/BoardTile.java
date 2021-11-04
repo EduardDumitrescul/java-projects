@@ -13,14 +13,16 @@ public class BoardTile extends StackPane {
     };
     public static final Background[] tileBackground = new Background[]{
             new Background(new BackgroundFill(color[WHITE], CornerRadii.EMPTY, Insets.EMPTY)),
-            new Background(new BackgroundFill(color[BLACK], CornerRadii.EMPTY, Insets.EMPTY))
+            new Background(new BackgroundFill(color[BLACK], CornerRadii.EMPTY, Insets.EMPTY)),
+            new Background(new BackgroundFill(Color.LIGHTYELLOW, CornerRadii.EMPTY, Insets.EMPTY))
     };
 
-    private int currentPiece = Piece.EMPTY;
+    private int currentPiece = Piece.EMPTY, type;
     private final WrappedImageView imageView = new WrappedImageView();
-
+    private boolean target = false;
 
     public BoardTile(int type) {
+        this.type = type;
         setBackground(tileBackground[type]);
         setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         getChildren().add(imageView);
@@ -33,5 +35,14 @@ public class BoardTile extends StackPane {
 
     public int getPiece() {
         return currentPiece;
+    }
+
+    public void setTarget(boolean value) {
+        target = value;
+        if(target == false) {
+            setBackground(tileBackground[type]);
+        }
+        else
+            setBackground(tileBackground[2]);
     }
 }

@@ -15,6 +15,8 @@ import javafx.scene.paint.Color;
 
 import java.net.URL;
 import java.nio.channels.OverlappingFileLockException;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.ResourceBundle;
 
@@ -37,7 +39,8 @@ public class ChessBoardController implements Initializable {
     }
 
     private void initBoard() {
-        bitboard = Bitboard.boardToBitboard(board);
+        bitboard = new Bitboard();
+        bitboard.toBoard(board);
 
         RowConstraints rowConstraints = new RowConstraints();
         rowConstraints.setPercentHeight(12.5);
@@ -66,7 +69,7 @@ public class ChessBoardController implements Initializable {
 
     private void addUserControl() {
         board.setOnMouseClicked(mouseEvent -> {
-            mouseClick();
+            mouseClick(mouseEvent);
             mouseEvent.consume();
         });
         board.setOnMousePressed(mouseEvent -> {
@@ -83,8 +86,16 @@ public class ChessBoardController implements Initializable {
         });
     }
 
-    private void mouseClick() {
+    private void mouseClick(MouseEvent mouseEvent) {
+        int i = 7 - (int)(8 * mouseEvent.getY() / board.getHeight());
+        int j =     (int)(8 * mouseEvent.getX() / board.getWidth());
+        if(!(0 <= i && i < 8 && 0 <= j && j < 8 && mouseEvent.getX() >= 0 && mouseEvent.getY() >= 0))
+            return;
 
+        ArrayList<Integer> att = bitboard.computeAttackingSquares(8 * i + j);
+        for(int index: att) {
+            board.getBoardTile(index).setTarget(true);
+        }
     }
     private void mousePressed(MouseEvent mouseEvent) {
         int i = 7 - (int)(8 * mouseEvent.getY() / board.getHeight());
@@ -96,6 +107,8 @@ public class ChessBoardController implements Initializable {
         pieceImage.setImage(Piece.getImage(move.getPiece()));
         pieceImage.setFitHeight(board.getHeight() / 8);
         pieceImage.setFitWidth(board.getWidth() / 8);
+        pieceImage.setX(mouseEvent.getX() - pieceImage.getFitWidth() / 2);
+        pieceImage.setY(mouseEvent.getY() - pieceImage.getFitHeight() / 2);
         boardOverlay.getChildren().add(pieceImage);
     }
     private void mouseReleased(MouseEvent mouseEvent) {
@@ -108,8 +121,12 @@ public class ChessBoardController implements Initializable {
             return;
         }
 
+
         move.setDest(i, j);
-        bitboard.makeMove(board, move);
+        if(move.getStartIndex() != move.getDestIndex())
+            bitboard.makeMove(board, move);
+        else
+            board.getBoardTile(move.getStartIndex()).setPiece(move.getPiece());
 
         boardOverlay.getChildren().remove(pieceImage);
     }

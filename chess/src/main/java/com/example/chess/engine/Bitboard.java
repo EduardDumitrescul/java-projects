@@ -1,7 +1,11 @@
 package com.example.chess.engine;
 
 import com.example.chess.Board;
+import com.example.chess.WrappedImageView;
 import com.example.chess.pieces.Piece;
+
+import java.text.ParseException;
+import java.util.ArrayList;
 
 public class Bitboard {
     public static final int misc = 0;
@@ -27,6 +31,55 @@ public class Bitboard {
 
     public Bitboard() {
         initializeValues();
+        initializeDefaultBitboard();
+    }
+
+    private void initializeDefaultBitboard() {
+        setPiece(Piece.WHITE_ROOK, 0);
+        setPiece(Piece.WHITE_KNIGHT, 1);
+        setPiece(Piece.WHITE_BISHOP, 2);
+        setPiece(Piece.WHITE_QUEEN, 3);
+        setPiece(Piece.WHITE_KING, 4);
+        setPiece(Piece.WHITE_BISHOP, 5);
+        setPiece(Piece.WHITE_KNIGHT, 6);
+        setPiece(Piece.WHITE_ROOK, 7);
+        setPiece(Piece.WHITE_PAWN, 8);
+        setPiece(Piece.WHITE_PAWN, 9);
+        setPiece(Piece.WHITE_PAWN, 10);
+        setPiece(Piece.WHITE_PAWN, 11);
+        setPiece(Piece.WHITE_PAWN, 12);
+        setPiece(Piece.WHITE_PAWN, 13);
+        setPiece(Piece.WHITE_PAWN, 14);
+        setPiece(Piece.WHITE_PAWN, 15);
+
+        setPiece(Piece.BLACK_ROOK, 63);
+        setPiece(Piece.BLACK_KNIGHT, 62);
+        setPiece(Piece.BLACK_BISHOP, 61);
+        setPiece(Piece.BLACK_KING, 60);
+        setPiece(Piece.BLACK_QUEEN, 59);
+        setPiece(Piece.BLACK_BISHOP, 58);
+        setPiece(Piece.BLACK_KNIGHT, 57);
+        setPiece(Piece.BLACK_ROOK, 56);
+        setPiece(Piece.BLACK_PAWN, 55);
+        setPiece(Piece.BLACK_PAWN, 54);
+        setPiece(Piece.BLACK_PAWN, 53);
+        setPiece(Piece.BLACK_PAWN, 52);
+        setPiece(Piece.BLACK_PAWN, 51);
+        setPiece(Piece.BLACK_PAWN, 50);
+        setPiece(Piece.BLACK_PAWN, 49);
+        setPiece(Piece.BLACK_PAWN, 48);
+
+        bitboard[0] |= 1; // who moves:  White = 1, Black = 0
+        bitboard[0] |= 2; // white king can king castle
+        bitboard[0] |= 4; // white king can queen castle
+        bitboard[0] |= 8; // black king can king castle
+        bitboard[0] |= 16; // black king can queen castle
+
+        bitboard[0] &= (universal ^ 32); // en passant
+        // 6-11 position of pawn
+
+        computeBitboard();
+
     }
 
     private void initializeValues() {
@@ -67,6 +120,54 @@ public class Bitboard {
         //testPrecomputedValues();
     }
 
+    public ArrayList<Integer> computeAttackingSquares(int squareIndex) {
+        int piece = 0;
+        for(int i = 1; i < 13; i ++) {
+            if((bitboard[i] & bit[squareIndex]) != 0) {
+                piece = i;
+                break;
+            }
+
+        }
+
+       if(piece == Piece.WHITE_PAWN)
+           return computeAttackingWhitePawn(squareIndex);
+       return new ArrayList<>();
+    }
+
+    private ArrayList<Integer> computeAttackingWhitePawn(int squareIndex) {
+        ArrayList<Integer> att = new ArrayList<>();
+        int rankIndex = toRankIndex(squareIndex);
+        int fileIndex = toFileIndex(squareIndex);
+        int pos;
+
+        //Forward 1 move
+        pos = squareIndex + 8;
+        if((occupied & bit[pos]) == 0)
+            att.add(pos);
+
+        //Left take
+        if(fileIndex != 0) {
+            pos = squareIndex + 7;
+            System.out.println("OK");
+            if((black & bit[pos]) != 0)
+                att.add(pos);
+            else if(getEnPassantIndex() == pos - 8)
+                att.add(pos);
+        }
+
+        //Right take
+        if(fileIndex != 7) {
+            pos = squareIndex + 9;
+            if((black & bit[pos]) != 0)
+                att.add(pos);
+            else if(getEnPassantIndex() == pos - 8)
+                att.add(pos);
+        }
+
+        return att;
+    }
+
     //Try not to use because it loses info about castling, en-passant
     public static Bitboard boardToBitboard(Board board) {
         Bitboard bitboard = new Bitboard();
@@ -90,35 +191,80 @@ public class Bitboard {
     }
 
     public void makeMove(Board board, Move move) {
+        System.out.println("move");
         if(move.getPiece() == Piece.EMPTY) return;
 
         int start = move.getStartIndex();
         int dest = move.getDestIndex();
-        bitboard[move.getPiece()] &= (universal ^ bit[start]);   // set to false
-        bitboard[move.getEndPiece()] &= (universal ^ bit[dest]);   // set to false
-        bitboard[move.getPiece()] |= (bit[dest]);             // set to true
+        setFalse(move.getPiece(), start);
+        setFalse(move.getEndPiece(), dest);
+        setTrue(move.getPiece(), dest);
         board.getBoardTile(dest).setPiece(move.getPiece());
+
+
+        //   CASTLING
+        if(move.getPiece() == Piece.WHITE_KING){
+            setFalse(0, 1);
+            setFalse(0, 2);
+        }
+        if(move.getPiece() == Piece.WHITE_ROOK && start == 7)
+            setFalse(0, 1);
+        if(move.getPiece() == Piece.WHITE_ROOK && start == 0)
+            setFalse(0, 2);
+
+        if(move.getPiece() == Piece.BLACK_KING){
+            setFalse(0, 3);
+            setFalse(0, 4);
+        }
+        if(move.getPiece() == Piece.BLACK_ROOK && start == 63)
+            setFalse(0, 3);
+        if(move.getPiece() == Piece.BLACK_ROOK && start == 56)
+            setFalse(0, 4);
+
+        //EN PASSANT
+        setFalse(0, 5);
+        if(move.getPiece() == Piece.WHITE_PAWN && start + 16 == dest) {
+            setTrue(0, 5);
+            for(int i = 11; i >= 6; i --, dest >>= 1)
+                if((dest & 1) == 1)
+                    setTrue(0, i);
+                else
+                    setFalse(0, i);
+        }
+        if(move.getPiece() == Piece.BLACK_PAWN && start - 16 == dest) {
+            setTrue(0, 5);
+            for(int i = 11; i >= 6; i --, dest >>= 1)
+                if((dest & 1) == 1)
+                    setTrue(0, i);
+                else
+                    setFalse(0, i);
+        }
+
+
+        // Change who moves
+        bitboard[0] ^= 1;
+
+        computeBitboard();
 
     }
 
-    public Board toBoard() {
-        Board board = new Board();
+    public void toBoard(Board board) {
         for(int i = 1; i <= 12; i++) {
-            for(long value = bitboard[i]; value > 0; value = removeLSB(value)){
-                long lsb = findLSB(value);
-                int squareIndex = bitIndex[(int)(lsb % 67)];
+            for(long value = bitboard[i]; value != 0; value = removeLSB(value)){
+                int squareIndex = findBitIndex(findLSB(value));
                 board.getBoardTile(squareIndex).setPiece(i);
             }
         }
-        return board;
     }
 
     public void setPiece(int piece, int squareIndex) {
-        bitboard[piece] |= bit[squareIndex];
+        setTrue(piece, squareIndex);
+        if((bitboard[piece] & bit[squareIndex]) != 0)
+            System.out.println("OK");
     }
 
     public void removePiece(int piece, int squareIndex) {
-        bitboard[piece] &= (universal ^ bit[squareIndex]);
+        setFalse(piece, squareIndex);
     }
 
     public void print() {
@@ -212,5 +358,42 @@ public class Bitboard {
         }
         System.out.println("*******************");
 
+    }
+
+    private void computeBitboard() {
+        white = bitboard[Piece.WHITE_PAWN] |
+                bitboard[Piece.WHITE_KNIGHT] |
+                bitboard[Piece.WHITE_BISHOP] |
+                bitboard[Piece.WHITE_ROOK] |
+                bitboard[Piece.WHITE_QUEEN] |
+                bitboard[Piece.WHITE_KING];
+        black = bitboard[Piece.BLACK_PAWN] |
+                bitboard[Piece.BLACK_KNIGHT] |
+                bitboard[Piece.BLACK_BISHOP] |
+                bitboard[Piece.BLACK_ROOK] |
+                bitboard[Piece.BLACK_QUEEN] |
+                bitboard[Piece.BLACK_KING];
+
+        occupied = white | black;
+    }
+
+    private int getEnPassantIndex() {
+        int en_passant = -1;
+        if((bitboard[0] & bit[5]) != 0) {
+            en_passant = 0;
+            for(int i = 6; i < 12; i++) {
+                en_passant = 2 * en_passant;
+                if((bitboard[0] & bit[i]) != 0)
+                    en_passant ++;
+            }
+        }
+        return en_passant;
+    }
+
+    private void setFalse(int type , int pos) {
+        bitboard[type] &= (universal ^ bit[pos]);
+    }
+    private void setTrue(int type, int pos) {
+        bitboard[type] |= bit[pos];
     }
 }
