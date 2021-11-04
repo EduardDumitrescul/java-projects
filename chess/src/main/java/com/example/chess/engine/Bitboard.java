@@ -3,28 +3,44 @@ package com.example.chess.engine;
 import com.example.chess.Board;
 import com.example.chess.pieces.Piece;
 
-import java.util.BitSet;
-
 public class Bitboard {
     public static final int misc = 0;
     public static final int wk = 1, wq = 3, wr = 5, wb = 7, wn = 9, wp = 11;
     public static final int bk = 2, bq = 4, br = 5, bb = 8, bn = 10, bp = 12;
 
-    private BitSet[] bitboard = new BitSet[]{
-            new BitSet(8),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64),
-            new BitSet(64)
-    };
+    private long[] bitboard = new long[13];
+
+    private boolean valuesInitialized = false;
+    private static long universal = -1;
+    private static long empty;
+    private static long[] fileSet;
+    private static long[] rankSet;
+    private static long[] bit = new long[64];
+    private static int[] bitIndex = new int[67];
+
+    private long occupied;
+    private long white;
+    private long black;
+
+
+    public Bitboard() {
+        initializeValues();
+    }
+
+    private void initializeValues() {
+        if (valuesInitialized) return;
+        valuesInitialized = true;
+
+        bit[0] |= 1;
+        bitIndex[1] = 0;
+        for(int i = 1; i < 64; i ++) {
+            bit[i] = bit[i-1] << 1;
+
+            int mod = (int)(bit[i] % 67);
+            if(mod < 0) mod += 67;
+            bitIndex[mod] = i;
+        }
+    }
 
     //Try not to use because it loses info about castling, en-passant
     public static Bitboard boardToBitboard(Board board) {
@@ -53,9 +69,9 @@ public class Bitboard {
 
         int start = move.getStartIndex();
         int dest = move.getDestIndex();
-        bitboard[move.getPiece()].set(start, start, false);
-        bitboard[move.getEndPiece()].set(dest, dest, false);
-        bitboard[move.getPiece()].set(dest, dest, true);
+        bitboard[move.getPiece()] &= (universal ^ bit[start]);   // set to false
+        bitboard[move.getEndPiece()] &= (universal ^ bit[dest]);   // set to false
+        bitboard[move.getPiece()] |= (bit[dest]);             // set to true
         board.getBoardTile(dest).setPiece(move.getPiece());
 
     }
@@ -63,18 +79,21 @@ public class Bitboard {
     public Board toBoard() {
         Board board = new Board();
         for(int i = 1; i <= 12; i++) {
-            for(int j = bitboard[i].nextSetBit(0); j >= 0; j = bitboard[i].nextSetBit(j + 1))
-                board.getBoardTile(j).setPiece(i);
+            for(long value = bitboard[i]; value > 0; value = removeLSB(value)){
+                long lsb = findLSB(value);
+                int squareIndex = bitIndex[(int)(lsb % 67)];
+                board.getBoardTile(squareIndex).setPiece(i);
+            }
         }
         return board;
     }
 
-    public void setPiece(int type, int pos) {
-        bitboard[type].set(pos);
+    public void setPiece(int piece, int squareIndex) {
+        bitboard[piece] |= bit[squareIndex];
     }
 
-    public void removePiece(int type, int pos) {
-        bitboard[type].set(pos, 0);
+    public void removePiece(int piece, int squareIndex) {
+        bitboard[piece] &= (universal ^ bit[squareIndex]);
     }
 
     public void print() {
@@ -82,5 +101,39 @@ public class Bitboard {
             System.out.println(bitboard[i]);
         }
         System.out.println("_________________________________");
+    }
+
+    public static int toSquareIndex(int rankIndex, int fileIndex){
+        return 8 * rankIndex + fileIndex;
+    }
+
+    public static int toRankIndex(int squareIndex) {
+        return squareIndex / 8;
+    }
+
+    public static int toFileIndex(int squareIndex) {
+        return squareIndex % 8;
+    }
+
+    public static int toDiagonalIndex(int rankIndex, int fileIndex) {
+        return (rankIndex - fileIndex) & 15;
+    }
+
+    public static int toAntiDiagonalIndex(int rankIndex, int fileIndex) {
+        return (rankIndex + fileIndex) ^ 7;
+    }
+
+    public static long findLSB(long number) {
+        return number & (-number);
+    }
+
+    public static long removeLSB(long number) {
+        return number ^ findLSB((number));
+    }
+
+    public static int findBitIndex(long p2) {
+        int mod  = (int)(p2 % 67);
+        if(mod < 0) mod += 67;
+        return bitIndex[mod];
     }
 }

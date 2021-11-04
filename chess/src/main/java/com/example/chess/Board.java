@@ -8,20 +8,33 @@ public class Board extends GridPane {
     private BoardTile board[] = new BoardTile[64];
 
     public Board() {
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j ++) {
-                board[8*i+j] = new BoardTile((i+j)%2);
-                add(board[8*i+j], j, 7-i);
+        for(int rank = 0; rank < 8; rank++) {
+            for(int file = 0; file < 8; file ++) {
+                int squareIndex = toSquareIndex(rank, file);
+                board[squareIndex] = new BoardTile((rank + file)%2);
+                add(board[squareIndex], file, 7 - rank);
 
-                board[8*i+j].getChildren().add(new Label(Integer.toString(8*i+j)));
+                board[squareIndex].getChildren().add(new Label(Integer.toString(squareIndex)));
             }
         }
 
         setStartingPosition();
     }
 
-    public BoardTile getBoardTile(int index) {
-        return board[index];
+    public static int toSquareIndex(int rankIndex, int fileIndex){
+        return 8 * rankIndex + fileIndex;
+    }
+
+    public static int toRankIndex(int squareIndex) {
+        return squareIndex / 8;
+    }
+
+    public static int toFileIndex(int squareIndex) {
+        return squareIndex % 8;
+    }
+
+    public BoardTile getBoardTile(int squareIndex) {
+        return board[squareIndex];
     }
 
     public void setStartingPosition() {
