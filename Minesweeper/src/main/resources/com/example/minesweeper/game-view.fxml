@@ -11,7 +11,7 @@
             fx:controller="com.example.minesweeper.GameController"
             prefHeight="400.0" prefWidth="600.0">
 
-    <GridPane style="-fx-background-color:blue" minWidth="100" minHeight="100">
+    <GridPane fx:id="grid" style="-fx-background-color:blue">
 
     </GridPane>
 
