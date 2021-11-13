@@ -1,10 +1,11 @@
 package com.example.minesweeper;
 
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 public class GameController {
@@ -31,12 +32,73 @@ public class GameController {
             mines = 140 + (int)(Math.random() * 60);
 
         initializeGrid();
+        addVisuals();
+    }
+
+    private Cell currentCell = null;
+    private void addVisuals() {
+        grid.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                Cell cell = computeCurrentCell(mouseEvent);
+
+                if(currentCell != cell) {
+                    if(cell != null)
+                        cell.setSelected(Cell.SELECTED);
+                    if(currentCell != null)
+                        currentCell.setSelected(Cell.UNSELECTED);
+                    currentCell = cell;
+                }
+
+                mouseEvent.consume();
+            }
+        });
+        grid.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                Cell cell = computeCurrentCell(mouseEvent);
+
+                if(currentCell != cell) {
+                    if(cell != null)
+                        cell.setSelected(Cell.SELECTED);
+                    if(currentCell != null)
+                        currentCell.setSelected(Cell.UNSELECTED);
+                    currentCell = cell;
+                }
+
+                mouseEvent.consume();
+            }
+        });
+
+        grid.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(currentCell != null) {
+                    currentCell.setSelected(Cell.UNSELECTED);
+                    currentCell = null;
+                }
+            }
+        });
+    }
+
+    private Cell computeCurrentCell(MouseEvent mouseEvent) {
+        try {
+            return cells[(int)(mouseEvent.getY() / cellSize)][(int)(mouseEvent.getX() / cellSize)];
+        }
+        catch(Exception ex) {
+            return null;
+        }
+
+
     }
 
     private void initializeGrid() {
         cells = new Cell[rows][columns];
 
         grid.setMinSize(cellSize * columns, cellSize * rows);
+        grid.setPrefSize(cellSize * columns, cellSize * rows);
+        grid.setMaxSize(cellSize * columns, cellSize * rows);
+        grid.setBackground(new Background(new BackgroundFill(Color.PALEGOLDENROD, CornerRadii.EMPTY, Insets.EMPTY)));
 
         ColumnConstraints columnConstraints = new ColumnConstraints();
         columnConstraints.setMinWidth(cellSize);
@@ -56,11 +118,10 @@ public class GameController {
         for(int i = 0; i < rows; i ++) {
             for(int j = 0; j < columns; j ++) {
                 cells[i][j] = new Cell();
-                grid.add(cells[i][j], i, j);
+                grid.add(cells[i][j], j, i);
             }
         }
         grid.setAlignment(Pos.CENTER);
-        grid.setGridLinesVisible(true);
     }
 
 }
