@@ -19,8 +19,10 @@ public class GameController {
     @FXML
     private GridPane grid;
     private Cell[][] cells;
+    private int[][] a;
 
     private int difficulty = 0, rows, columns, mines;
+    boolean gameFinished = false;
     
     public void setDifficulty(int value) {
         difficulty = value;
@@ -35,50 +37,137 @@ public class GameController {
         addVisuals();
     }
 
-    private Cell currentCell = null;
+    private Cell currentCell = null, startingCell = null;
+    private int mouseButton = 0;
     private void addVisuals() {
         grid.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                Cell cell = computeCurrentCell(mouseEvent);
+                if(gameFinished)
+                    return;
 
-                if(currentCell != cell) {
-                    if(cell != null)
-                        cell.setSelected(Cell.SELECTED);
-                    if(currentCell != null)
-                        currentCell.setSelected(Cell.UNSELECTED);
-                    currentCell = cell;
-                }
+                if(mouseEvent.isPrimaryButtonDown()) mouseButton = 1;
+                else if(mouseEvent.isSecondaryButtonDown()) mouseButton = 2;
 
-                mouseEvent.consume();
+                startingCell = computeCurrentCell(mouseEvent);
+                currentCell = startingCell;
+
+                if(mouseButton == 1)
+                    setFocused(null, currentCell);
+
+                if(mouseButton == 2)
+                    setFlag(startingCell);
+
             }
         });
+
         grid.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
+                if(gameFinished)
+                    return;
+
                 Cell cell = computeCurrentCell(mouseEvent);
 
-                if(currentCell != cell) {
-                    if(cell != null)
-                        cell.setSelected(Cell.SELECTED);
-                    if(currentCell != null)
-                        currentCell.setSelected(Cell.UNSELECTED);
+                if(mouseButton == 1) {
+                    setFocused(currentCell, cell);
                     currentCell = cell;
                 }
-
-                mouseEvent.consume();
             }
         });
 
         grid.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if(currentCell != null) {
-                    currentCell.setSelected(Cell.UNSELECTED);
-                    currentCell = null;
+                if(gameFinished)
+                    return;
+
+                Cell cell = computeCurrentCell(mouseEvent);
+
+                if(mouseButton == 1) {
+                    setFocused(cell, null);
+
+
+                    int i = (int)(mouseEvent.getY() / cellSize);
+                    int j = (int)(mouseEvent.getX() / cellSize);
+                    revealBlock(i, j);
+
                 }
             }
         });
+    }
+
+    private void setFlag(Cell cell) {
+        try {
+            if(cell.getState() == Cell.HIDDEN)
+                cell.setState(Cell.FLAG);
+            else if(cell.getState() == Cell.FLAG)
+                cell.setState(Cell.HIDDEN);
+        }
+        catch (Exception ex) {
+
+        }
+    }
+
+    private void setFocused(Cell lastCell, Cell currentCell) {
+        try{
+            if(lastCell.getState() == Cell.HIDDEN)
+                lastCell.setSelected(Cell.UNSELECTED);
+        }
+        catch (Exception ex){}
+        try {
+            if(currentCell.getState() == Cell.HIDDEN)
+                currentCell.setSelected(Cell.SELECTED);
+        }
+        catch (Exception ex){}
+    }
+
+    private void revealCell(int i, int j) {
+        try {
+            if(cells[i][j].getState() != Cell.HIDDEN)
+                return;
+
+            if(a[i][j] == -1) {
+                loseGame();
+            }
+            else
+                cells[i][j].setState(a[i][j]);
+        }
+        catch (Exception ignored){}
+
+    }
+     // for revealing a block
+    private void revealBlock(int i, int j) {
+        if(!(0 <= i && i < rows && 0 <= j && j < columns))
+            return;
+        if(cells[i][j].getState() != Cell.HIDDEN)
+            return;
+
+        revealCell(i, j);
+
+        if(a[i][j] == 0) {
+            revealBlock(i-1, j-1);
+            revealBlock(i-1, j);
+            revealBlock(i-1, j+1);
+            revealBlock(i, j-1);
+            revealBlock(i, j+1);
+            revealBlock(i+1, j-1);
+            revealBlock(i+1, j);
+            revealBlock(i+1, j+1);
+        }
+
+    }
+
+    private void loseGame() {
+        gameFinished = true;
+
+        for(int i = 0; i < rows; i ++) {
+            for(int j = 0; j < columns; j ++){
+                if(a[i][j] == -1) {
+                    cells[i][j].setState(Cell.BOMB);
+                }
+            }
+        }
     }
 
     private Cell computeCurrentCell(MouseEvent mouseEvent) {
@@ -122,6 +211,41 @@ public class GameController {
             }
         }
         grid.setAlignment(Pos.CENTER);
+
+
+        a = new int[rows][columns];
+        for(int m = 0; m < mines; m ++) {
+            int i = (int)(Math.random() * rows);
+            int j = (int)(Math.random() * columns);
+
+            if(a[i][j] == 0)
+                a[i][j] = -1;
+            else
+                m --;
+        }
+
+        int[] di = new int[]{-1, -1, -1, 0, 1, 1, 1, 0};
+        int[] dj = new int[]{-1, 0, 1, 1, 1, 0, -1, -1};
+
+        for(int i = 0; i < rows; i ++) {
+            for(int j = 0; j < columns; j ++) {
+                if(a[i][j] == -1)
+                for(int k = 0; k < 8; k ++){
+                    int ii = i + di[k];
+                    int jj = j + dj[k];
+                    if(0 <= ii && ii < rows && 0 <= jj && jj < columns && a[ii][jj] != -1)
+                        a[ii][jj] ++;
+                }
+            }
+        }
+    }
+
+    void printNumberGrid() {
+        for(int i = 0; i < rows; i ++) {
+            for(int j = 0; j < columns; j ++)
+                System.out.print (a[i][j] + " ");
+            System.out.println();
+        }
     }
 
 }
