@@ -35,7 +35,7 @@ public class MenuController implements Initializable {
         try {
             Scene scene = new Scene(fxmlLoader.load());
             GameController gameController = fxmlLoader.getController();
-            gameController.setDifficulty(GameController.EASY);
+            gameController.createGame(GameController.EASY);
             Minesweeper.setScene(scene);
         }
         catch(IOException ex) {
@@ -47,7 +47,7 @@ public class MenuController implements Initializable {
         try {
             Scene scene = new Scene(fxmlLoader.load());
             GameController gameController = fxmlLoader.getController();
-            gameController.setDifficulty(GameController.NORMAL);
+            gameController.createGame(GameController.NORMAL);
             Minesweeper.setScene(scene);
         }
         catch(IOException ex) {
@@ -59,7 +59,7 @@ public class MenuController implements Initializable {
         try {
             Scene scene = new Scene(fxmlLoader.load());
             GameController gameController = fxmlLoader.getController();
-            gameController.setDifficulty(GameController.HARD);
+            gameController.createGame(GameController.HARD);
             Minesweeper.setScene(scene);
         }
         catch(IOException ex) {
@@ -71,7 +71,7 @@ public class MenuController implements Initializable {
         try {
             Scene scene = new Scene(fxmlLoader.load());
             GameController gameController = fxmlLoader.getController();
-            gameController.setDifficulty(GameController.EXTREME);
+            gameController.createGame(GameController.EXTREME);
             Minesweeper.setScene(scene);
         }
         catch(IOException ex) {

@@ -1,30 +1,52 @@
 package com.example.minesweeper;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameController {
     public static final int EASY = 0, NORMAL = 1, HARD = 2 , EXTREME = 3;
     private static final int[] rowsOptions = new int[]{10, 14, 20, 24};
     private static final int[] columnsOptions = new int[]{10, 18, 30, 40};
     private static final int[] numberOfMines = new int[]{16, 40, 100};
-
     private static final int cellSize = 26;
+    private static Font font;
+
 
     @FXML
+    private Button returnButton;
+    @FXML
+    private Label timerView;
+    @FXML
+    private Label timeLabel;
+    @FXML
+    private Label minesLabel;
+    @FXML
+    private Label minesCountLabel;
+    @FXML
     private GridPane grid;
+
+
     private Cell[][] cells;
     private int[][] a;
 
     private int difficulty = 0, rows, columns, mines;
     boolean gameFinished = false;
     
-    public void setDifficulty(int value) {
+    public void createGame(int value) {
         difficulty = value;
         rows = rowsOptions[value];
         columns = columnsOptions[value];
@@ -33,8 +55,21 @@ public class GameController {
         else
             mines = 140 + (int)(Math.random() * 60);
 
+        font = Font.loadFont(String.valueOf(Minesweeper.class.getResource("/fonts/arcade_ya/ARCADE_I.TTF")), columns);
+
+        minesLabel.setFont(font);
+        minesCountLabel.setFont(font);
+        minesCountLabel.setText(Integer.toString(mines));
+
+        timerView.setFont(font);
+        timeLabel.setFont(font);
+
+        returnButton.setFont(font);
+
+
         initializeGrid();
         addVisuals();
+        initializeTimer();
     }
 
     private Cell currentCell = null, startingCell = null;
@@ -240,6 +275,28 @@ public class GameController {
         }
     }
 
+    private void initializeTimer() {
+        Timer timer = new Timer();
+        Date startDate = new Date();
+        TimerTask updateTimer = new TimerTask() {
+            @Override
+            public void run() {
+                Date currentDate = new Date();
+                long duration = currentDate.getTime() - startDate.getTime();
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        timerView.setText(Long.toString(duration / 1000));
+                    }
+                });
+
+            }
+        };
+
+        timer.scheduleAtFixedRate(updateTimer, 0, 1000);
+    }
+
     void printNumberGrid() {
         for(int i = 0; i < rows; i ++) {
             for(int j = 0; j < columns; j ++)
@@ -248,4 +305,8 @@ public class GameController {
         }
     }
 
+    public void returnToMainMenu(ActionEvent actionEvent) {
+        Minesweeper.setMenuScene();
+
+    }
 }

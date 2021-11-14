@@ -6,13 +6,41 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.minesweeper.GameController"
-            prefHeight="400.0" prefWidth="600.0">
+<BorderPane xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="com.example.minesweeper.GameController">
+    <top>
+        <BorderPane>
+            <left>
+                <HBox spacing="0">
+                    <Label fx:id="minesLabel" text="MINES:"/>
+                    <Label fx:id="minesCountLabel"/>
+                </HBox>
 
-    <GridPane fx:id="grid" style="-fx-background-color:blue">
+            </left>
+            <right>
+                <HBox>
+                    <Label fx:id="timeLabel" text="TIME:" />
+                    <Label fx:id="timerView"/>
+                </HBox>
+            </right>
+        </BorderPane>
+    </top>
 
-    </GridPane>
+    <center>
+        <StackPane >
+            <GridPane fx:id="grid" style="-fx-background-color:blue">
 
-</StackPane>
+            </GridPane>
+        </StackPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="TOP_RIGHT">
+            <Button fx:id="returnButton" text="Return to Main Menu" onAction="#returnToMainMenu" style="-fx-background-color: transparent"/>
+        </HBox>
+    </bottom>
+
+
+</BorderPane>
+
