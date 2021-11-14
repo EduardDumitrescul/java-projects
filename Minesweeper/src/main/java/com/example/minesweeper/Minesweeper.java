@@ -3,6 +3,11 @@ package com.example.minesweeper;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -18,6 +23,7 @@ public class Minesweeper extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(Minesweeper.class.getResource("menu-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
+        scene.getStylesheets().add(Minesweeper.class.getResource("/stylesheets/style.css").toString());
 
         stage.setResizable(false);
         stage.setScene(scene);
@@ -30,6 +36,7 @@ public class Minesweeper extends Application {
     }
 
     public static void setScene(Scene scene) {
+        scene.getStylesheets().add(Minesweeper.class.getResource("/stylesheets/style.css").toString());
         stage.setScene(scene);
     }
 
