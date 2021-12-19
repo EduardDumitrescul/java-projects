@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.loginui.LoginController"
+          alignment="CENTER" vgap="10" hgap="10"
+          style="-fx-background-color:lightgray; -fx-padding:10 10 10 10;">
+    <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+    <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+    <TextField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    <HBox GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2" alignment="CENTER_RIGHT" spacing="140">
+        <Button fx:id="exitButton" text="Cancel"/>
+        <Button fx:id="loginButton" text="Login"/>
+    </HBox>
+
+    <columnConstraints>
+        <ColumnConstraints halignment="RIGHT" hgrow="NEVER"></ColumnConstraints>
+        <ColumnConstraints halignment="LEFT" hgrow="NEVER"></ColumnConstraints>
+    </columnConstraints>
+
+</GridPane>

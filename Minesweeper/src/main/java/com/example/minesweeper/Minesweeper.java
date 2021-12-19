@@ -44,6 +44,7 @@ public class Minesweeper extends Application {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Minesweeper.class.getResource("menu-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
+            scene.getStylesheets().add(Minesweeper.class.getResource("/stylesheets/style.css").toString());
             stage.setScene(scene);
         }
         catch (Exception ex){

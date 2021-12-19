@@ -12,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 import java.util.Date;
 import java.util.Timer;
@@ -21,7 +22,7 @@ public class GameController {
     public static final int EASY = 0, NORMAL = 1, HARD = 2 , EXTREME = 3;
     private static final int[] rowsOptions = new int[]{10, 14, 20, 24};
     private static final int[] columnsOptions = new int[]{10, 18, 30, 40};
-    private static final int[] numberOfMines = new int[]{16, 40, 100};
+    private static final int[] numberOfMines = new int[]{12, 36, 100};
     private static final int cellSize = 26;
     private static Font font;
 
@@ -29,21 +30,24 @@ public class GameController {
     @FXML
     private Button returnButton;
     @FXML
-    private Label timerView;
+    private Text timerView;
     @FXML
-    private Label timeLabel;
+    private Text timeLabel;
     @FXML
-    private Label minesLabel;
+    private Text minesLabel;
     @FXML
-    private Label minesCountLabel;
+    private Text minesCountLabel;
     @FXML
     private GridPane grid;
 
 
     private Cell[][] cells;
     private int[][] a;
+    private Timer timer = new Timer();
 
-    private int difficulty = 0, rows, columns, mines;
+    private int difficulty = 0, rows, columns;
+    private int mines, noFlags = 0, remainingMines, exposedCells = 0;
+    private int gameDuration = 0;
     boolean gameFinished = false;
     
     public void createGame(int value) {
@@ -53,18 +57,28 @@ public class GameController {
         if(value != EXTREME)
             mines = numberOfMines[value];
         else
-            mines = 140 + (int)(Math.random() * 60);
+            mines = 120 + (int)(Math.random() * 30);
+        remainingMines = mines;
 
         font = Font.loadFont(String.valueOf(Minesweeper.class.getResource("/fonts/arcade_ya/ARCADE_I.TTF")), columns);
 
         minesLabel.setFont(font);
+        minesLabel.setFill(Color.PALEGOLDENROD);
         minesCountLabel.setFont(font);
-        minesCountLabel.setText(Integer.toString(mines));
+        minesCountLabel.setFill(Color.PALEGOLDENROD);
+
+        if(difficulty != EXTREME)
+            minesCountLabel.setText(Integer.toString(mines));
+        else
+            minesCountLabel.setText("???");
 
         timerView.setFont(font);
+        timerView.setFill(Color.PALEGOLDENROD);
         timeLabel.setFont(font);
+        timeLabel.setFill(Color.PALEGOLDENROD);
 
         returnButton.setFont(font);
+        returnButton.setTextFill(Color.PALEGOLDENROD);
 
 
         initializeGrid();
@@ -84,14 +98,17 @@ public class GameController {
                 if(mouseEvent.isPrimaryButtonDown()) mouseButton = 1;
                 else if(mouseEvent.isSecondaryButtonDown()) mouseButton = 2;
 
+                int i = (int)(mouseEvent.getY() / cellSize);
+                int j = (int)(mouseEvent.getX() / cellSize);
                 startingCell = computeCurrentCell(mouseEvent);
                 currentCell = startingCell;
 
                 if(mouseButton == 1)
                     setFocused(null, currentCell);
 
-                if(mouseButton == 2)
-                    setFlag(startingCell);
+                if(mouseButton == 2) {
+                    setFlag(i, j);
+                }
 
             }
         });
@@ -122,7 +139,6 @@ public class GameController {
                 if(mouseButton == 1) {
                     setFocused(cell, null);
 
-
                     int i = (int)(mouseEvent.getY() / cellSize);
                     int j = (int)(mouseEvent.getX() / cellSize);
                     revealBlock(i, j);
@@ -132,12 +148,26 @@ public class GameController {
         });
     }
 
-    private void setFlag(Cell cell) {
+    private void setFlag(int i, int j) {
+        Cell cell = cells[i][j];
         try {
-            if(cell.getState() == Cell.HIDDEN)
+            if(cell.getState() == Cell.HIDDEN) {
                 cell.setState(Cell.FLAG);
-            else if(cell.getState() == Cell.FLAG)
+                noFlags ++;
+                if(a[i][j] == -1) {
+                    remainingMines --;
+                }
+            }
+
+            else if(cell.getState() == Cell.FLAG) {
                 cell.setState(Cell.HIDDEN);
+                noFlags --;
+                if(a[i][j] == -1) {
+                    remainingMines ++;
+                }
+            }
+            if(difficulty != EXTREME)
+                minesCountLabel.setText(Integer.toString(Math.max(0, mines - noFlags)));
         }
         catch (Exception ex) {
 
@@ -167,6 +197,11 @@ public class GameController {
             }
             else
                 cells[i][j].setState(a[i][j]);
+            exposedCells ++;
+
+            if(exposedCells == rows * columns - mines) {
+                winGame();
+            }
         }
         catch (Exception ignored){}
 
@@ -195,7 +230,7 @@ public class GameController {
 
     private void loseGame() {
         gameFinished = true;
-
+        timer.cancel();
         for(int i = 0; i < rows; i ++) {
             for(int j = 0; j < columns; j ++){
                 if(a[i][j] == -1) {
@@ -203,6 +238,11 @@ public class GameController {
                 }
             }
         }
+    }
+
+    private void winGame() {
+        gameFinished = true;
+        timer.cancel();
     }
 
     private Cell computeCurrentCell(MouseEvent mouseEvent) {
@@ -276,7 +316,6 @@ public class GameController {
     }
 
     private void initializeTimer() {
-        Timer timer = new Timer();
         Date startDate = new Date();
         TimerTask updateTimer = new TimerTask() {
             @Override
@@ -288,6 +327,7 @@ public class GameController {
                     @Override
                     public void run() {
                         timerView.setText(Long.toString(duration / 1000));
+                        gameDuration = (int) (duration / 1000);
                     }
                 });
 

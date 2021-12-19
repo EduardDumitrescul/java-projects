@@ -1,0 +1,6 @@
+2021-10-25 12:01:22 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TEST_TABLE" already exists; SQL statement:
+CREATE TABLE test_table; [42101-199]
+2021-10-25 12:07:38 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TEST_TABLE2" already exists; SQL statement:
+CREATE TABLE test_table2; [42101-199]

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import com.example.chess.Board?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:id="rootPane"
+           fx:controller="com.example.chess.ChessBoardController">
+        <Board fx:id="board"></Board>
+        <Pane fx:id="boardOverlay" maxWidth="0" maxHeight="0" mouseTransparent="true">
+        </Pane>
+
+
+</StackPane>

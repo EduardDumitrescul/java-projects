@@ -16,6 +16,7 @@ public class Bitboard {
 
     private boolean valuesInitialized = false;
     private static long universal = -1;
+
     private static long empty = 0;
     private static long[] fileSet = new long[8];   // a..h   - vertical
     private static long[] rankSet = new long[8];   // 0..7   - horizontal
