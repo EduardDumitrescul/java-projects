@@ -11,13 +11,10 @@ public class VisualizerController {
 
         graphModel = new GraphModel();
         graphView = new GraphView();
-        graphController = new GraphController(graphModel, graphView);
+        infoView = new InfoView();
+        graphController = new GraphController(graphModel, graphView, infoView);
 
         visualizerView.setMainPane(graphView);
-
-        infoView = new InfoView();
-
-        graphController.setInfoView(infoView);
 
         visualizerView.setEastPane(infoView);
 
