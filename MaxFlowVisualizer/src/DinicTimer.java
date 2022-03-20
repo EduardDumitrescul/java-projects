@@ -8,6 +8,7 @@ public class DinicTimer extends Timer {
     private GraphModel graphModel;
     private GraphView graphView;
     private InfoView infoView;
+    private boolean isRunning = false;
 
     private DinicTimerTask algorithm = new DinicTimerTask();
 
@@ -18,11 +19,17 @@ public class DinicTimer extends Timer {
     }
 
     public void stop() {
+        if(isRunning == false)
+                return;
         algorithm.stop();
+        isRunning = false;
     }
 
     public void start() {
+        if(isRunning == true)
+            return;
         schedule(algorithm, 0);
+        isRunning = true;
     }
 
     private class DinicTimerTask extends TimerTask {
