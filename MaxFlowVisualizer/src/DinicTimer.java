@@ -1,4 +1,5 @@
 import GraphVisual.Edge;
+import org.w3c.dom.ls.LSOutput;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -53,7 +54,7 @@ public class DinicTimer extends Timer {
 
                 try {
                     if(flag) break;
-                    Thread.sleep(1200);
+                    Thread.sleep(1000);
                     if(flag) break;
                 }
                 catch (Exception ex){
@@ -85,7 +86,7 @@ public class DinicTimer extends Timer {
 
                 try {
                     if(flag) break;
-                    Thread.sleep(1200);
+                    Thread.sleep(100);
                     if(flag) break;
                 }
                 catch (Exception ex){
@@ -94,6 +95,8 @@ public class DinicTimer extends Timer {
             }
 
             infoView.setCurrentStep(infoView.ALGORITHM_DONE);
+            System.out.println(maxFlow);
         }
+
     }
 }

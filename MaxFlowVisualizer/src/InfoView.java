@@ -25,10 +25,16 @@ public class InfoView extends JPanel {
 
     public InfoView() {
         setBorder(BorderFactory.createLineBorder(Color.black, 1, false));
-        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(Box.createVerticalStrut(10));
         add(flowLabel);
         add(Box.createVerticalStrut(10));
+        flowLabel.setAlignmentX(Label.CENTER_ALIGNMENT);
+        add(Box.createVerticalStrut(10));
         add(currentStepLabel);
+        add(Box.createVerticalStrut(10));
+        currentStepLabel.setAlignmentX(Label.CENTER_ALIGNMENT);
+        currentStepLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         add(Box.createVerticalStrut(10));
         add(dashedLinePane);
@@ -44,8 +50,8 @@ public class InfoView extends JPanel {
         add(pane);
 
 
-        setMinimumSize(new Dimension(180, 600));
-        setPreferredSize(new Dimension(200, 600));
+        setMinimumSize(new Dimension(280, 600));
+        setPreferredSize(new Dimension(300, 600));
     }
 
     public JButton getStartButton() {
@@ -67,8 +73,8 @@ public class InfoView extends JPanel {
     private class DashedLinePane extends JPanel {
         DashedLinePane() {
             repaint();
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+            setPreferredSize(new Dimension(Integer.MAX_VALUE, 20));
         }
 
         void drawCenteredString(Graphics2D graphics2D, String string, double x, double y) {
@@ -96,7 +102,8 @@ public class InfoView extends JPanel {
     private class SolidLinePane extends JPanel {
         SolidLinePane() {
             repaint();
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+            setPreferredSize(new Dimension(Integer.MAX_VALUE, 20));
 
         }
 

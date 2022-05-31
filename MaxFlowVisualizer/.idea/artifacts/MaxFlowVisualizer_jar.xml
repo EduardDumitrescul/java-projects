@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="MaxFlowVisualizer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MaxFlowVisualizer_jar</output-path>
+    <root id="archive" name="MaxFlowVisualizer.jar">
+      <element id="module-output" name="MaxFlowVisualizer" />
+    </root>
+  </artifact>
+</component>

@@ -49,12 +49,10 @@ public class GraphView extends JPanel{
 
         computeVerticesPosition();
         graphics2D.setStroke(new BasicStroke((int)(Math.sqrt(diameter) / 2)));
-        g.setFont(new Font("TimesRoman", Font.BOLD, (int)(Math.sqrt(diameter) * 1.6)));
+        g.setFont(new Font("TimesRoman", Font.BOLD, (int)(Math.sqrt(diameter) * 1.9)));
         drawVertices(graphics2D);
         drawEdges(graphics2D);
     }
-
-
 
     void computeVerticesPosition() {
         int layerCount = 0;
@@ -141,12 +139,12 @@ public class GraphView extends JPanel{
             double size = 20;
 
             if(highlighted.get(edge.getSrc() * 1000000 + edge.getDest()) != null)
-                graphics2D.setColor(Color.orange);
+                graphics2D.setColor(Color.red);
             else
-                graphics2D.setColor(Color.BLACK);
+                graphics2D.setColor(Color.blue);
 
             if(dest.getLayer() - src.getLayer() == 1) {
-                BasicStroke solid = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+                BasicStroke solid = new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
                 graphics2D.setStroke(solid);
 
                 double f = 0.3;

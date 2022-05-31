@@ -12,18 +12,8 @@ public class GraphModel {
     private int[] level;
 
     public GraphModel() {
-        setVertexCount(6);
         initialize();
-        /*addEdge(0, 1, 16);
-        addEdge(0, 2, 13);
-        addEdge(2, 1, 4);
-        addEdge(1, 3, 12);
-        addEdge(3, 2, 9);
-        addEdge(2, 4, 14);
-        addEdge(4, 3, 7);
-        addEdge(3, 5, 20);
-        addEdge(4, 5, 4);*/
-        randomGraph(10);
+        randomGraph(12);
     }
 
     public void setVertexCount(int value) {
@@ -63,16 +53,16 @@ public class GraphModel {
         for(int p = 0; p < pathCount; p ++) {
             int cap = (int)(Math.random() * 5);
             boolean[] visited = new boolean[vertexCount];
-            int lenght = 0, node = source;
+            int length = 0, node = source;
 
             while(node != sink) {
                 visited[node] = true;
-                lenght ++;
+                length ++;
 
                 int next;
                 do {
                     next = (int)(Math.random() * vertexCount);
-                }while(node == next || visited[next] == true || (next == sink && lenght < minLenght));
+                }while(node == next || visited[next] || (next == sink && length < minLenght));
 
                 a[node][next] += cap + (Math.random() * 3);
                 node = next;
@@ -103,7 +93,7 @@ public class GraphModel {
         Queue<Integer> queue = new LinkedList<>();
         queue.add(source);
 
-        while(queue.isEmpty() == false) {
+        while(!queue.isEmpty()) {
             int node = queue.poll();
 
             for(int i = 0; i < adj[node].size(); i ++) {
@@ -203,7 +193,6 @@ public class GraphModel {
         graph.addEdge(4, 5, 4);
 
     }
-
 
     private class Edge {
         public int node, next;
